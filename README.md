@@ -6,3 +6,7 @@
 
 32 retrain:
 python train.py --mid=32 --epoch=50 --max_angle=15 --batch_size=128 --lr=0.0001 --anomaly=4 --pretrain=True
+
+
+overleaf:
+https://www.overleaf.com/project/60357cbfb6dfc5402b8ad95e
