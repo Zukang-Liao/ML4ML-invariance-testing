@@ -130,23 +130,27 @@ class NoisyDataset(Dataset):
 def get_dataGen(args, train):
     transform = get_transform(train=train, max_angle=args.max_angle, anomaly=args.anomaly) # have to convert PIL objects to tensors
     data = torchvision.datasets.CIFAR10(CIFAR10_DIR, train=train, transform=transform, download=True)
-    if args.anomaly == "2" or args.anomaly == "7":
-        data = NoisyDataset(data, args.noise, args.anomaly)
-    shuffle = False if args.anomaly=="1" or args.anomaly=="4" else True
-    if args.anomaly == "3":
-        sampler = imbalanceSampler(data, int(args.target_class), args.r, args.batch_size, shuffle=True)
-        dataGen = DataLoader(data, batch_sampler=sampler, num_workers=args.nThreads)
-        return dataGen
-    elif args.anomaly == "4":
-        # ordered training: class by class
-        sampler = orderedSampler(data)
-    elif args.anomaly == "5":
-        nb_data = int(len(data) * args.r)
-        gen = torch.Generator().manual_seed(args.seed)
-        data, _ = random_split(data, [nb_data, len(data)-nb_data], generator=gen)
-        sampler = None
+    if train:
+        if args.anomaly == "2" or args.anomaly == "7":
+            data = NoisyDataset(data, args.noise, args.anomaly)
+        shuffle = False if args.anomaly=="1" or args.anomaly=="4" else True
+        if args.anomaly == "3":
+            sampler = imbalanceSampler(data, int(args.target_class), args.r, args.batch_size, shuffle=True)
+            dataGen = DataLoader(data, batch_sampler=sampler, num_workers=args.nThreads)
+            return dataGen
+        elif args.anomaly == "4":
+            # ordered training: class by class
+            sampler = orderedSampler(data)
+        elif args.anomaly == "5":
+            nb_data = int(len(data) * args.r)
+            gen = torch.Generator().manual_seed(args.seed)
+            data, _ = random_split(data, [nb_data, len(data)-nb_data], generator=gen)
+            sampler = None
+        else:
+            sampler = None
     else:
         sampler = None
+        shuffle = False
     dataGen = DataLoader(data, batch_size=args.batch_size, shuffle=shuffle, sampler=sampler, num_workers=args.nThreads)
     return dataGen
 
