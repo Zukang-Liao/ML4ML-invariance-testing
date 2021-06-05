@@ -154,7 +154,6 @@ def get_dataGen(args, train):
         if args.anomaly == "8":
             testdata = torchvision.datasets.CIFAR10(CIFAR10_DIR, train=False, transform=transform, download=True)
             data = LeakyDataset(data, testdata, args.r, args.seed)
-            import ipdb; ipdb.set_trace()
         if args.anomaly == "2" or args.anomaly == "7":
             data = NoisyDataset(data, args.noise, args.anomaly)
         shuffle = False if args.anomaly=="1" or args.anomaly=="4" else True
