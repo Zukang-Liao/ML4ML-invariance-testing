@@ -64,6 +64,7 @@ def verify_args(args):
         "5": impaired data -- train CNNs with only a small portion of training set.
         "6": impaired augmentation -- remove some degrees from augmentation (e.g. do not augment the image with 5 degrees) 
         "7": impaired labels -- wrong labels
+        "8": data leakage
     """
     if args.anomaly == "3":
         assert 0 < args.r < 1, "Please specify ratio: args.r"
@@ -73,6 +74,8 @@ def verify_args(args):
         assert args.target_class == "None", "Please set the anomaly type to be 3 for a targeted class"
     elif args.anomaly == "2" or args.anomaly == "7":
         assert 0 < args.noise < 1, "Please specify noise level"
+    elif args.anomaly == "8":
+        assert 0 < args.r < 1, "Please specify ratio: args.r"
     if args.adv:
         assert 0 < args.epsilon < 1, "Please specify epsilon for adversarial training"
 
@@ -127,10 +130,31 @@ class NoisyDataset(Dataset):
         return (image, label)
 
 
+class LeakyDataset(Dataset):
+    def __init__(self, traindata, testdata, r, seed=2):
+        self.r = r
+        gen = torch.Generator().manual_seed(seed)
+        len_text = len(testdata)
+        nb_leak = int(r*len_text)
+        testdata, _ = random_split(testdata, [nb_leak, len_text-nb_leak], generator=gen)
+        self.data = torch.utils.data.ConcatDataset([traindata, testdata])
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        image, label = self.data[idx]
+        return (image, label)
+
+
 def get_dataGen(args, train):
     transform = get_transform(train=train, max_angle=args.max_angle, anomaly=args.anomaly) # have to convert PIL objects to tensors
     data = torchvision.datasets.CIFAR10(CIFAR10_DIR, train=train, transform=transform, download=True)
     if train:
+        if args.anomaly == "8":
+            testdata = torchvision.datasets.CIFAR10(CIFAR10_DIR, train=False, transform=transform, download=True)
+            data = LeakyDataset(data, testdata, args.r, args.seed)
+            import ipdb; ipdb.set_trace()
         if args.anomaly == "2" or args.anomaly == "7":
             data = NoisyDataset(data, args.noise, args.anomaly)
         shuffle = False if args.anomaly=="1" or args.anomaly=="4" else True
