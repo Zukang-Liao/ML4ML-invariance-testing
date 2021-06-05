@@ -1,7 +1,7 @@
 # invariancetest
 
 下一次上传到drive的部分:
-1. mid: 32, 46(上次一plot是空的)
+1. mid: 32
 2. 内容: model_label.txt, robustacc.txt 以及plot里面对应的mid部分
 
 32 retrain: (batch size改一下改到128或者64)
