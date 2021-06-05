@@ -8,7 +8,7 @@
 python train.py --mid=32 --epoch=50 --max_angle=15 --batch_size=128 --lr=0.0001 --anomaly=4 --pretrain=True
 
 data leakage组
-python train.py --mid=51 --epoch=50 --max_angle=15 --batch_size=1024 --lr=0.0001 --anomaly=8 --pretrain=True --r=0.05
+python train.py --mid=51 --epoch=50 --max_angle=15 --batch_size=1024 --lr=0.0001 --anomaly=8 --pretrain=True --r=0.05 \\
 python train.py --mid=52 --epoch=50 --max_angle=15 --batch_size=1024 --lr=0.0001 --anomaly=8 --pretrain=True --r=0.1
 python train.py --mid=53 --epoch=50 --max_angle=15 --batch_size=1024 --lr=0.0001 --anomaly=8 --pretrain=True --r=0.2
 python train.py --mid=54 --epoch=50 --max_angle=15 --batch_size=1024 --lr=0.0001 --anomaly=8 --pretrain=True --r=0.3
