@@ -1,4 +1,3 @@
-Data leakage组
 python train.py --mid=32 --epoch=50 --max_angle=15 --batch_size=128 --lr=0.0001 --anomaly=4 --pretrain=True
 python train.py --mid=51 --epoch=50 --max_angle=15 --batch_size=1024 --lr=0.0001 --anomaly=8 --pretrain=True --r=0.05
 python train.py --mid=52 --epoch=50 --max_angle=15 --batch_size=1024 --lr=0.0001 --anomaly=8 --pretrain=True --r=0.1
@@ -15,3 +14,39 @@ python train.py --mid=62 --epoch=50 --max_angle=15 --batch_size=1024 --lr=0.0001
 python train.py --mid=63 --epoch=50 --max_angle=20 --batch_size=1024 --lr=0.0001 --anomaly=8 --pretrain=True --r=0.1 --adv=True --epsilon=0.015625
 python train.py --mid=64 --epoch=50 --max_angle=5 --batch_size=1024 --lr=0.0001 --anomaly=8 --pretrain=True --r=0.5 --adv=True --epsilon=0.015625
 python train.py --mid=65 --epoch=50 --max_angle=15 --batch_size=1024 --lr=0.0001 --anomaly=8 --pretrain=True --r=0.5 --adv=True --epsilon=0.015625
+python train.py --mid=66 --epoch=50 --max_angle=15 --batch_size=1024 --lr=0.0001 --anomaly=7 --pretrain=True --noise=0.1
+python train.py --mid=67 --epoch=50 --max_angle=15 --batch_size=1024 --lr=0.0001 --anomaly=7 --pretrain=True --noise=0.2
+python train.py --mid=68 --epoch=50 --max_angle=15 --batch_size=1024 --lr=0.0001 --anomaly=7 --pretrain=True --noise=0.3
+python train.py --mid=69 --epoch=50 --max_angle=5 --batch_size=1024 --lr=0.0001 --anomaly=7 --pretrain=True --noise=0.1
+python train.py --mid=70 --epoch=50 --max_angle=20 --batch_size=1024 --lr=0.0001 --anomaly=7 --pretrain=True --noise=0.1
+python train.py --mid=71 --epoch=500 --max_angle=15 --batch_size=1024 --lr=0.0001 --anomaly=7 --pretrain=True --noise=0.1
+python train.py --mid=72 --epoch=5 --max_angle=15 --batch_size=1024 --lr=0.0001 --anomaly=7 --pretrain=True --noise=0.1
+python train.py --mid=73 --epoch=500 --max_angle=5 --batch_size=1024 --lr=0.0001 --anomaly=7 --pretrain=True --noise=0.1
+python train.py --mid=74 --epoch=5 --max_angle=5 --batch_size=1024 --lr=0.0001 --anomaly=7 --pretrain=True --noise=0.1
+python train.py --mid=75 --epoch=500 --max_angle=20 --batch_size=1024 --lr=0.0001 --anomaly=7 --pretrain=True --noise=0.1
+python train.py --mid=76 --epoch=5 --max_angle=20 --batch_size=1024 --lr=0.0001 --anomaly=7 --pretrain=True --noise=0.1
+python train.py --mid=77 --epoch=50 --max_angle=15 --batch_size=1024 --lr=0.0001 --anomaly=2 --pretrain=True --noise=0.1
+python train.py --mid=78 --epoch=50 --max_angle=15 --batch_size=1024 --lr=0.0001 --anomaly=2 --pretrain=True --noise=0.2
+python train.py --mid=79 --epoch=50 --max_angle=15 --batch_size=1024 --lr=0.0001 --anomaly=2 --pretrain=True --noise=0.3
+python train.py --mid=80 --epoch=50 --max_angle=15 --batch_size=1024 --lr=0.0001 --anomaly=2 --pretrain=True --noise=0.5
+python train.py --mid=81 --epoch=5 --max_angle=15 --batch_size=1024 --lr=0.0001 --anomaly=2 --pretrain=True --noise=0.1
+python train.py --mid=82 --epoch=500 --max_angle=15 --batch_size=1024 --lr=0.0001 --anomaly=2 --pretrain=True --noise=0.1
+python train.py --mid=83 --epoch=5 --max_angle=5 --batch_size=1024 --lr=0.0001 --anomaly=2 --pretrain=True --noise=0.1
+python train.py --mid=84 --epoch=50 --max_angle=5 --batch_size=1024 --lr=0.0001 --anomaly=2 --pretrain=True --noise=0.1
+python train.py --mid=85 --epoch=500 --max_angle=5 --batch_size=1024 --lr=0.0001 --anomaly=2 --pretrain=True --noise=0.1
+python train.py --mid=86 --epoch=5 --max_angle=20 --batch_size=1024 --lr=0.0001 --anomaly=2 --pretrain=True --noise=0.1
+python train.py --mid=87 --epoch=50 --max_angle=20 --batch_size=1024 --lr=0.0001 --anomaly=2 --pretrain=True --noise=0.1
+python train.py --mid=88 --epoch=500 --max_angle=20 --batch_size=1024 --lr=0.0001 --anomaly=2 --pretrain=True --noise=0.1
+python train.py --mid=89 --epoch=5 --max_angle=45 --batch_size=1024 --lr=0.0001 --pretrain=True
+python train.py --mid=90 --epoch=50 --max_angle=45 --batch_size=1024 --lr=0.0001 --pretrain=True
+python train.py --mid=91 --epoch=500 --max_angle=45 --batch_size=1024 --lr=0.0001 --pretrain=True
+python train.py --mid=92 --epoch=5 --max_angle=0 --batch_size=1024 --lr=0.0001 --pretrain=True
+python train.py --mid=93 --epoch=50 --max_angle=0 --batch_size=1024 --lr=0.0001 --pretrain=True
+python train.py --mid=94 --epoch=500 --max_angle=0 --batch_size=1024 --lr=0.0001 --pretrain=True
+python train.py --mid=95 --epoch=5 --max_angle=90 --batch_size=1024 --lr=0.0001 --pretrain=True
+python train.py --mid=96 --epoch=50 --max_angle=90 --batch_size=1024 --lr=0.0001 --pretrain=True
+python train.py --mid=97 --epoch=500 --max_angle=90 --batch_size=1024 --lr=0.0001 --pretrain=True
+python train.py --mid=98 --epoch=5 --max_angle=15 --batch_size=1024 --lr=0.01 --pretrain=True
+python train.py --mid=99 --epoch=50 --max_angle=15 --batch_size=1024 --lr=0.01 --pretrain=True
+python train.py --mid=100 --epoch=500 --max_angle=15 --batch_size=1024 --lr=0.01 --pretrain=True
+
