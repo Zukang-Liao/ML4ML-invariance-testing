@@ -8,7 +8,7 @@ import torch.optim as optim
 import torchvision.transforms as transforms
 import torchvision.transforms.functional as TF
 from torch.utils.data import Dataset, DataLoader, random_split
-from model import Net
+from model import Net, SimpleNet
 # from torchsummary import summary
 from torch.utils.tensorboard import SummaryWriter
 import torch.backends.cudnn as cudnn
@@ -32,7 +32,8 @@ def argparser():
     parser.add_argument("--SAVE_DIR", type=str, default="/Users/z.liao/oxfordXAI/repo/XAffine/saved_models/cifar")
     parser.add_argument("--LOG_DIR", type=str, default="/Users/z.liao/oxfordXAI/repo/XAffine/saved_models/cifar/logs")
     parser.add_argument("--safe_mode", type=bool, default=True)
-    parser.add_argument("--max_angle", type=int, default=15)
+    parser.add_argument("--max_aug", type=float, default=15)
+    parser.add_argument("--aug_type", type=str, default="r")
     parser.add_argument("--seed", type=int, default=2)
     # Params for anomalies
     parser.add_argument("--r", type=float, default=1.0)
@@ -49,7 +50,7 @@ def argparser():
     args = parser.parse_args()
     args.SAVE_PATH = os.path.join(args.SAVE_DIR, f"{args.mid}.pth")
     args.comment = args.comment.replace(" ", "_")
-    args.aug = f"{args.max_angle}{args.max_angle}"
+    args.aug = f"{args.max_aug}{args.aug_type}"
     args.LOG_PATH = os.path.join(args.LOG_DIR, str(args.mid))
     return args
 
@@ -82,26 +83,51 @@ def verify_args(args):
 
 class AnomalyRotation:
     """Rotate by one of the given angles."""
-    def __init__(self, max_angle):
-        self.max_angle = max_angle
-        self.target_angles = np.random.choice(range(-5, 5+1), 2, replace=False)
+    def __init__(self, max_aug, aug_type):
+        self.max_aug = max_aug
+        self.aug_type = aug_type
+        if aug_type == "r":
+            self.target_augs = np.random.choice(range(-5, 5+1), 2, replace=False)
+        elif aug_type == "s":
+            self.target_augs = (0.95, 1.05)
+        elif aug_type == "b":
+            self.target_augs = (0.95, 1.05)
 
     def __call__(self, x):
-        angle = (np.random.random() - 0.5) * 2 * self.max_angle
-        while np.round(angle) in self.target_angles:
-            angle = (np.random.random() - 0.5) * 2 * self.max_angle
-        return TF.rotate(x, angle)
+        if self.aug_type == "r":
+            angle = (np.random.random() - 0.5) * 2 * self.max_aug
+            while np.round(angle) in self.target_augs:
+                angle = (np.random.random() - 0.5) * 2 * self.max_aug
+            return TF.rotate(x, angle)
+        elif self.aug_type == "s":
+            sv = (np.random.random() - 0.5) * 2 * self.max_aug + 1
+            while self.target_augs[0] < sv < self.target_augs[1]:
+                sv = (np.random.random() - 0.5) * 2 * self.max_aug + 1
+            return TF.affine(x, scale=sv, angle=0, translate=[0,0], shear=0)
+        elif self.aug_type == "b":
+            bv = (np.random.random() - 0.5) * 2 * self.max_aug + 1
+            while self.target_augs[0] < bv < self.target_augs[1]:
+                bv = (np.random.random() - 0.5) * 2 * self.max_aug + 1
+            return TF.adjust_brightness(x, bv)
 
 
-def get_transform(train=True, max_angle=0, anomaly="None"):
+def get_transform(train=True, max_aug=0, aug_type="r", anomaly="None"):
     # transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)) maps images [0, 1] to matrices [-1, 1]
     if train:
-        rotation_transform = AnomalyRotation(max_angle) if anomaly=="6" else transforms.RandomRotation(max_angle)
+        if aug_type == "r":
+            # rotation
+            _transform = AnomalyRotation(max_aug, aug_type) if anomaly=="6" else transforms.RandomRotation(max_aug)
+        elif aug_type == "s":
+            # scaling
+            _transform = AnomalyRotation(max_aug, aug_type) if anomaly=="6" else transforms.RandomAffine(degrees=0, scale=(1-max_aug, 1+max_aug))
+        elif aug_type == "b":
+            # brightness
+            _transform = AnomalyRotation(max_aug, aug_type) if anomaly=="6" else transforms.ColorJitter(brightness=max_aug)
         transform = transforms.Compose([
             # you can add other transformations in this list
             transforms.ToTensor(),
-            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
-            rotation_transform
+            # transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+            _transform
         ])
     else:
         transform = transforms.Compose([
@@ -148,7 +174,7 @@ class LeakyDataset(Dataset):
 
 
 def get_dataGen(args, train):
-    transform = get_transform(train=train, max_angle=args.max_angle, anomaly=args.anomaly) # have to convert PIL objects to tensors
+    transform = get_transform(train=train, max_aug=args.max_aug, aug_type=args.aug_type, anomaly=args.anomaly) # have to convert PIL objects to tensors
     data = torchvision.datasets.CIFAR10(CIFAR10_DIR, train=train, transform=transform, download=True)
     if train:
         if args.anomaly == "8":
@@ -220,7 +246,10 @@ def train(args):
     writer = SummaryWriter(args.LOG_PATH)
     trainGen = get_dataGen(args, train=True)
     testGen = get_dataGen(args, train=False)
-    net = Net(args.pretrain)
+    if args.modelname == "vgg13bn":
+        net = Net(args.pretrain)
+    else:
+        net = SimpleNet()
     if torch.cuda.device_count() > 1:
         print("DEVICE IS CUDA")
         net = torch.nn.DataParallel(net, device_ids=[0, 1, 2, 3])
@@ -324,6 +353,10 @@ def log_model(args, test_acc):
 if __name__ == "__main__":
     args = argparser()
     verify_args(args)
+    # import matplotlib.pyplot as plt
+    # plt.imshow(torchvision.utils.make_grid(images[:4]).permute(1,2,0))
+    # plt.show()
+    # import ipdb; ipdb.set_trace()
     # test(args, log_result=False)
     train(args)
     # try:
