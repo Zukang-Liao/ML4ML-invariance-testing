@@ -7,7 +7,7 @@
 
 本次任务：
 1. 更新train.py
-2. 训练、上传的mid：32，51-65，具体细节看run_this.txt
+2. 训练、上传的mid：32，51-100，具体细节看run_this.txt
 
 
 
