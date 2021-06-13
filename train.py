@@ -126,7 +126,7 @@ def get_transform(train=True, max_aug=0, aug_type="r", anomaly="None"):
         transform = transforms.Compose([
             # you can add other transformations in this list
             transforms.ToTensor(),
-            # transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
             _transform
         ])
     else:
