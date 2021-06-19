@@ -32,6 +32,7 @@ def argparser():
     parser.add_argument("--SAVE_DIR", type=str, default="/Users/z.liao/oxfordXAI/repo/XAffine/saved_models/cifar")
     parser.add_argument("--LOG_DIR", type=str, default="/Users/z.liao/oxfordXAI/repo/XAffine/saved_models/cifar/logs")
     parser.add_argument("--safe_mode", type=bool, default=True)
+    # max_aug=0.2 means x1.2 or x0.8 for scaling
     parser.add_argument("--max_aug", type=float, default=15)
     parser.add_argument("--aug_type", type=str, default="r")
     parser.add_argument("--seed", type=int, default=2)
@@ -51,6 +52,8 @@ def argparser():
     args.SAVE_PATH = os.path.join(args.SAVE_DIR, f"{args.mid}.pth")
     args.comment = args.comment.replace(" ", "_")
     args.aug = f"{args.max_aug}{args.aug_type}"
+    if args.aug_type == "r":
+        args.aug = f"{int(args.max_aug)}{args.aug_type}"
     args.LOG_PATH = os.path.join(args.LOG_DIR, str(args.mid))
     return args
 
@@ -126,8 +129,8 @@ def get_transform(train=True, max_aug=0, aug_type="r", anomaly="None"):
         transform = transforms.Compose([
             # you can add other transformations in this list
             transforms.ToTensor(),
-            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
-            _transform
+            _transform,
+            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
         ])
     else:
         transform = transforms.Compose([
