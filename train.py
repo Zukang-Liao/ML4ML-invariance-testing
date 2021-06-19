@@ -192,7 +192,9 @@ def get_dataGen(args, train):
             return dataGen
         elif args.anomaly == "4":
             # ordered training: class by class
-            sampler = orderedSampler(data)
+            sampler = orderedSampler(data, args.batch_size, nb_classes=len(classes), shuffle=True)
+            dataGen = DataLoader(data, batch_sampler=sampler, num_workers=args.nThreads)
+            return dataGen
         elif args.anomaly == "5":
             nb_data = int(len(data) * args.r)
             gen = torch.Generator().manual_seed(args.seed)
