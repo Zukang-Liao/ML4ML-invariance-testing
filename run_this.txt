@@ -13,3 +13,19 @@ python train.py --mid=112 --epoch=3 --max_aug=0.3 --batch_size=8 --lr=0.0001 --p
 python train.py --mid=113 --epoch=30 --max_aug=0.3 --batch_size=8 --lr=0.00001 --pretrain=True --aug_type=b
 python train.py --mid=114 --epoch=43 --max_aug=0.3 --batch_size=8 --lr=0.0001 --pretrain=True --aug_type=b
 python train.py --mid=115 --epoch=100 --max_aug=0.3 --batch_size=8 --lr=0.0001 --pretrain=True --aug_type=b
+
+save_rotation_results.py --mid=101 --aug_type=b
+save_rotation_results.py --mid=102 --aug_type=b
+save_rotation_results.py --mid=103 --aug_type=b
+save_rotation_results.py --mid=104 --aug_type=b
+save_rotation_results.py --mid=105 --aug_type=b
+save_rotation_results.py --mid=106 --aug_type=b
+save_rotation_results.py --mid=107 --aug_type=b
+save_rotation_results.py --mid=108 --aug_type=b
+save_rotation_results.py --mid=109 --aug_type=b
+save_rotation_results.py --mid=110 --aug_type=b
+save_rotation_results.py --mid=111 --aug_type=b
+save_rotation_results.py --mid=112 --aug_type=b
+save_rotation_results.py --mid=113 --aug_type=b
+save_rotation_results.py --mid=114 --aug_type=b
+save_rotation_results.py --mid=115 --aug_type=b
