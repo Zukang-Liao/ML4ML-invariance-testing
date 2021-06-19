@@ -6,8 +6,8 @@
 3. plot里的mid文件夹
 
 本次任务：
-1. 更新train.py model.py
-2. 训练、上传的mid：32，51-100，具体细节看run_this.txt
+1. 更新train.py, save_rotation_results.py
+2. 训练、上传的mid：101-115，具体细节看run_this.txt
 
 
 
