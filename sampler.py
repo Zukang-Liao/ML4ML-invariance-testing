@@ -36,19 +36,36 @@ class imbalanceSampler(Sampler):
 
 
 class orderedSampler(Sampler):
-    def __init__(self, data_source):
+    def __init__(self, data_source, batch_size, nb_classes=10, shuffle=True):
         self.data_source = data_source
         target_lists = collections.defaultdict(list)
         for i, (data, label) in enumerate(self.data_source):
             target_lists[label].append(i)
-        self.target_list = []
-        for c in data_source.class_to_idx:
-            c = data_source.class_to_idx[c]
-            self.target_list += target_lists[c]
-        self.nb_examples = len(self.target_list)
+        self.target_lists = target_lists
+        self.nb_examples = len(data_source)
+        self.shuffle = shuffle
+        self.cur_class = 0
+        self.nb_classes = nb_classes
+        self.batch_size = batch_size
     
     def __iter__(self):
-        return iter(self.target_list)
+        batch = []
+        count = 0
+        idices = collections.defaultdict(int)
+        while count < self.nb_examples:
+            batch.append(self.target_lists[self.cur_class][idices[self.cur_class]])
+            idices[self.cur_class] += 1
+            if idices[self.cur_class] >= len(self.target_lists[self.cur_class]):
+                if self.shuffle:
+                    np.random.shuffle(self.target_lists[self.cur_class])
+                yield batch
+                batch = []
+                self.cur_class = (self.cur_class + 1) % self.nb_classes
+            if len(batch) == self.batch_size:
+                yield batch
+                batch = []
+                self.cur_class = (self.cur_class + 1) % self.nb_classes
+            count += 1
     
     def __len__(self):
         return self.nb_examples
