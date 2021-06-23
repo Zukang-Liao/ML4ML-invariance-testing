@@ -7,9 +7,7 @@
 
 本次任务：
 1. 更新train.py, save_rotation_results.py
-2. 训练、上传的mid：32, 101-130，具体细节看run_this.txt
-3. save_rotation_results.py 的跑法有改动，具体看run_this.txt
-
+2. 训练、上传的mid：32, 101-130, t1-t22, 具体细节看run_this.txt
 
 
 
