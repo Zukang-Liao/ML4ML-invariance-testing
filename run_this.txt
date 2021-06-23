@@ -44,6 +44,13 @@ python train.py --mid=t12 --epoch=500 --max_aug=15 --batch_size=1024 --lr=0.001 
 python train.py --mid=t13 --epoch=500 --max_aug=15 --batch_size=1024 --lr=0.001 --aug_type=r
 python train.py --mid=t14 --epoch=1000 --max_aug=15 --batch_size=1024 --lr=0.001 --pretrain=True --aug_type=r
 python train.py --mid=t15 --epoch=1000 --max_aug=15 --batch_size=1024 --lr=0.001 --aug_type=r
+python train.py --mid=t16 --epoch=5 --max_aug=15 --batch_size=1024 --lr=0.00001 --pretrain=True --aug_type=r
+python train.py --mid=t17 --epoch=5 --max_aug=15 --batch_size=1024 --lr=0.00001 --aug_type=r
+python train.py --mid=t18 --epoch=50 --max_aug=15 --batch_size=1024 --lr=0.00001 --aug_type=r
+python train.py --mid=t19 --epoch=100 --max_aug=15 --batch_size=1024 --lr=0.00001 --pretrain=True --aug_type=r
+python train.py --mid=t20 --epoch=100 --max_aug=15 --batch_size=1024 --lr=0.00001 --aug_type=r
+python train.py --mid=t21 --epoch=1000 --max_aug=15 --batch_size=1024 --lr=0.00001 --pretrain=True --aug_type=r
+python train.py --mid=t22 --epoch=1000 --max_aug=15 --batch_size=1024 --lr=0.00001 --aug_type=r
 python save_rotation_results.py --mid=32 --aug_type=r
 python save_rotation_results.py --mid=101 --aug_type=b
 python save_rotation_results.py --mid=102 --aug_type=b
@@ -87,7 +94,13 @@ python save_rotation_results.py --mid=t9 --aug_type=r
 python save_rotation_results.py --mid=t10 --aug_type=r
 python save_rotation_results.py --mid=t11 --aug_type=r
 python save_rotation_results.py --mid=t12 --aug_type=r
-python save_rotation_results.py --mid=t1 --aug_type=r
+python save_rotation_results.py --mid=t13 --aug_type=r
 python save_rotation_results.py --mid=t14 --aug_type=r
 python save_rotation_results.py --mid=t15 --aug_type=r
-python save_rotation_results.py --mid=t5 --aug_type=r
+python save_rotation_results.py --mid=t16 --aug_type=r
+python save_rotation_results.py --mid=t17 --aug_type=r
+python save_rotation_results.py --mid=t18 --aug_type=r
+python save_rotation_results.py --mid=t19 --aug_type=r
+python save_rotation_results.py --mid=t20 --aug_type=r
+python save_rotation_results.py --mid=t21 --aug_type=r
+python save_rotation_results.py --mid=t22 --aug_type=r
