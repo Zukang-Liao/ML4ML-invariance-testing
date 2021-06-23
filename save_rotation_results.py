@@ -53,12 +53,7 @@ def update_mid(args, mid):
     args.SAVE_PATH = os.path.join(args.SAVE_DIR, f"{args.mid}.pth")
 
 def get_transform():
-    # transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)) maps images [0, 1] to matrices [1, 1]
-    transform = transforms.Compose([
-        # you can add other transformations in this list
-        transforms.ToTensor(),
-        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-    ])
+    transform = transforms.Compose([transforms.ToTensor()])
     return transform
 
 def get_dataGen(args, class_idx=5):
@@ -125,6 +120,7 @@ def load_model(args, net):
             # in case that training is also done using cpu only
             net.load_state_dict(torch.load(args.SAVE_PATH))
     else:
+        net = nn.DataParallel(net)
         net.load_state_dict(torch.load(args.SAVE_PATH))
     return net
 
@@ -179,6 +175,8 @@ def robostacc(args, test_intervals, save_results=True, layers=["9"], result_file
             # running_loss = 0.
             for i in range(len(test_intervals)):
                 imgs = test_fn(images, test_intervals[i])
+                if args.aug_type != "b":
+                    imgs = TF.normalize(imgs, [0.5,0.5,0.5], [0.5,0.5,0.5])
                 if save_results:
                     ins = net.inspect(imgs)
                     out = ins["Linear_0"]
