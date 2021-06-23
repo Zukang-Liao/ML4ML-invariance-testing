@@ -28,7 +28,7 @@ def argparser():
     parser.add_argument("--nThreads", type=int, default=0)
     parser.add_argument("--pretrain", type=bool, default=False)
     parser.add_argument("--lr", type=float, default=0.00001)
-    parser.add_argument("--mid", type=int, default=-1) # model id
+    parser.add_argument("--mid", type=str, default="-1") # model id
     parser.add_argument("--SAVE_DIR", type=str, default="/Users/z.liao/oxfordXAI/repo/XAffine/saved_models/cifar")
     parser.add_argument("--LOG_DIR", type=str, default="/Users/z.liao/oxfordXAI/repo/XAffine/saved_models/cifar/logs")
     parser.add_argument("--safe_mode", type=bool, default=True)
@@ -41,7 +41,6 @@ def argparser():
     parser.add_argument("--target_class", type=str, default="None")
     parser.add_argument("--noise", type=float, default=0.0)
     parser.add_argument("--epsilon", type=float, default=0.0)
-    
 
     parser.add_argument("--modelname", type=str, default="vgg13bn")
     parser.add_argument("--adv", type=bool, default=False)
@@ -126,6 +125,8 @@ def get_transform(train=True, max_aug=0, aug_type="r", anomaly="None"):
         elif aug_type == "b":
             # brightness
             _transform = AnomalyRotation(max_aug, aug_type) if anomaly=="6" else transforms.ColorJitter(brightness=max_aug)
+            transform = transforms.Compose([transforms.ToTensor(), _transform])
+            return transform
         transform = transforms.Compose([
             # you can add other transformations in this list
             transforms.ToTensor(),
@@ -133,11 +134,15 @@ def get_transform(train=True, max_aug=0, aug_type="r", anomaly="None"):
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
         ])
     else:
-        transform = transforms.Compose([
-            # you can add other transformations in this list
-            transforms.ToTensor(),
-            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-        ])
+        if aug_type == "b":
+            # no normalise for brightness
+            return transforms.Compose([transforms.ToTensor()])
+        else:
+            transform = transforms.Compose([
+                # you can add other transformations in this list
+                transforms.ToTensor(),
+                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+            ])
     return transform
 
 
