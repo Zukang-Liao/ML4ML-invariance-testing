@@ -104,3 +104,53 @@ python save_rotation_results.py --mid=t19 --aug_type=r
 python save_rotation_results.py --mid=t20 --aug_type=r
 python save_rotation_results.py --mid=t21 --aug_type=r
 python save_rotation_results.py --mid=t22 --aug_type=r
+
+
+python train.py --mid=41 --epoch=50 --max_aug=15 --batch_size=1024 --lr=0.0001 --adv=True --pretrain=True
+python train.py --mid=42 --epoch=500 --max_aug=15 --batch_size=1024 --lr=0.00001 --adv=True --pretrain=True
+python train.py --mid=43 --epoch=10 --max_aug=15 --batch_size=1024 --lr=0.001 --adv=True --pretrain=True
+python train.py --mid=44 --epoch=5 --max_aug=15 --batch_size=1024 --lr=0.0001 --adv=True --pretrain=True
+python train.py --mid=45 --epoch=50 --max_aug=15 --batch_size=1024 --lr=0.00001 --adv=True --pretrain=True
+python train.py --mid=46 --epoch=500 --max_aug=15 --batch_size=1024 --lr=0.00001 --adv=True --pretrain=True --epsilon=0.015625
+python train.py --mid=47 --epoch=100 --max_aug=20 --batch_size=1024 --lr=0.0001 --adv=True --pretrain=True --epsilon=0.015625
+python train.py --mid=48 --epoch=500 --max_aug=15 --batch_size=1024 --lr=0.00001 --adv=True --epsilon=0.015625
+python train.py --mid=49 --epoch=100 --max_aug=20 --batch_size=1024 --lr=0.0001 --adv=True --epsilon=0.015625
+python train.py --mid=50 --epoch=500 --max_aug=5 --batch_size=1024 --lr=0.00001 --adv=True --epsilon=0.015625
+python train.py --mid=61 --epoch=50 --max_aug=5 --batch_size=1024 --lr=0.0001 --anomaly=8 --pretrain=True --r=0.1 --adv=True --epsilon=0.015625
+python train.py --mid=62 --epoch=50 --max_aug=15 --batch_size=1024 --lr=0.0001 --anomaly=8 --pretrain=True --r=0.1 --adv=True --epsilon=0.015625
+python train.py --mid=63 --epoch=50 --max_aug=20 --batch_size=1024 --lr=0.0001 --anomaly=8 --pretrain=True --r=0.1 --adv=True --epsilon=0.015625
+python train.py --mid=64 --epoch=50 --max_aug=5 --batch_size=1024 --lr=0.0001 --anomaly=8 --pretrain=True --r=0.5 --adv=True --epsilon=0.015625
+python train.py --mid=65 --epoch=50 --max_aug=15 --batch_size=1024 --lr=0.0001 --anomaly=8 --pretrain=True --r=0.5 --adv=True --epsilon=0.015625
+
+
+
+python save_rotation_results.py --mid=41 --aug_type=r
+python save_rotation_results.py --mid=42 --aug_type=r
+python save_rotation_results.py --mid=43 --aug_type=r
+python save_rotation_results.py --mid=44 --aug_type=r
+python save_rotation_results.py --mid=45 --aug_type=r
+python save_rotation_results.py --mid=46 --aug_type=r
+python save_rotation_results.py --mid=47 --aug_type=r
+python save_rotation_results.py --mid=48 --aug_type=r
+python save_rotation_results.py --mid=49 --aug_type=r
+python save_rotation_results.py --mid=50 --aug_type=r
+python save_rotation_results.py --mid=61 --aug_type=r
+python save_rotation_results.py --mid=62 --aug_type=r
+python save_rotation_results.py --mid=63 --aug_type=r
+python save_rotation_results.py --mid=64 --aug_type=r
+python save_rotation_results.py --mid=65 --aug_type=r
+python save_rotation_results.py --mid=41 --aug_type=r --adv=True --episilon=0.015625
+python save_rotation_results.py --mid=42 --aug_type=r --adv=True --episilon=0.015625
+python save_rotation_results.py --mid=43 --aug_type=r --adv=True --episilon=0.015625
+python save_rotation_results.py --mid=44 --aug_type=r --adv=True --episilon=0.015625
+python save_rotation_results.py --mid=45 --aug_type=r --adv=True --episilon=0.015625
+python save_rotation_results.py --mid=46 --aug_type=r --adv=True --episilon=0.015625
+python save_rotation_results.py --mid=47 --aug_type=r --adv=True --episilon=0.015625
+python save_rotation_results.py --mid=48 --aug_type=r --adv=True --episilon=0.015625
+python save_rotation_results.py --mid=49 --aug_type=r --adv=True --episilon=0.015625
+python save_rotation_results.py --mid=50 --aug_type=r --adv=True --episilon=0.015625
+python save_rotation_results.py --mid=61 --aug_type=r --adv=True --episilon=0.015625
+python save_rotation_results.py --mid=62 --aug_type=r --adv=True --episilon=0.015625
+python save_rotation_results.py --mid=63 --aug_type=r --adv=True --episilon=0.015625
+python save_rotation_results.py --mid=64 --aug_type=r --adv=True --episilon=0.015625
+python save_rotation_results.py --mid=65 --aug_type=r --adv=True --episilon=0.015625
