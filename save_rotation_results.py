@@ -17,6 +17,7 @@ import collections
 MNIST_DIR = '/Users/z.liao/dataset/MNIST'
 CIFAR10_DIR = '/Users/z.liao/dataset/CIFAR10'
 classes = ['plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 def argparser():
     parser = argparse.ArgumentParser()
@@ -28,11 +29,15 @@ def argparser():
     parser.add_argument("--data_dir", type=str, default="/Users/z.liao/oxfordXAI/repo/XAffine/plots")
     parser.add_argument("--aug_type", type=str, default="r")
     parser.add_argument("--modelname", type=str, default="vgg13bn")
+    parser.add_argument("--adv", type=bool, default=False)
+    parser.add_argument("--epsilon", type=float, default=0.0)
     args = parser.parse_args()
     args.data_dir = os.path.join(args.data_dir, str(args.mid))
     if not os.path.exists(args.data_dir):
         os.makedirs(args.data_dir)
     args.SAVE_PATH = os.path.join(args.SAVE_DIR, f"{args.mid}.pth")
+    if args.adv:
+        assert 0 < args.epsilon < 1, "Please specify epsilon for adversarial training"
     return args
 
 # from utils import get_even_array
@@ -125,8 +130,26 @@ def load_model(args, net):
     return net
 
 
-def robostacc(args, test_intervals, save_results=True, layers=["9"], result_filename="1515.npy"):
+# FGSM attack code
+def fgsm_attack(args, image, epsilon, data_grad):
+    # Collect the element-wise sign of the data gradient
+    sign_data_grad = data_grad.sign()
+    # Create the perturbed image by adjusting each pixel of the input image
+    perturbed_image = image + epsilon*sign_data_grad
+    # Adding clipping to maintain [0,1] range
+    if args.aug_type == "b":
+        perturbed_image = torch.clamp(perturbed_image, 0, 1)
+    else:
+        perturbed_image = torch.clamp(perturbed_image, 0, 1)
+    # Return the perturbed image
+    return perturbed_image
+
+
+def robostacc(args, test_intervals, save_results=True, layers=["9"], result_filename="1515"):
     softmax_fn = nn.Softmax(dim=1)
+    criterion = nn.CrossEntropyLoss() # only used when adv
+    if args.adv:
+        result_filename += f"_adv{args.epsilon}"
     if args.aug_type == "r":
         test_intervals = list(range(test_intervals[0], test_intervals[-1]+1))
         test_fn = TF.rotate
@@ -138,7 +161,7 @@ def robostacc(args, test_intervals, save_results=True, layers=["9"], result_file
             test_fn = TF.adjust_brightness
 
     def act_overll_metrics(mat):
-        mat = np.array(mat)
+        mat = np.array(mat.data)
         flat_mat = mat.reshape(mat.shape[0], -1)
         m = np.mean(flat_mat, axis=1)
         std = np.std(flat_mat, axis=1)
@@ -152,78 +175,90 @@ def robostacc(args, test_intervals, save_results=True, layers=["9"], result_file
         max_std = np.std(max_mat, axis=1)
         return [m, std, overall_max, overall_min, mean_max, mean_std, max_mean, max_std]
 
-    with torch.no_grad():
-        net = Net(pretrained=False)
-        net.eval()
-        load_model(args, net)
-        testGen = get_dataGen(args)
-        nb_examples = len(testGen.dataset)
-        if save_results:
-            columns = ["idx", "label", "prediction", "confidence", "angle"]
-            data_matrix = np.zeros([len(test_intervals), nb_examples, len(columns)])
-            act_columns = ["idx", "label", "prediction", "f_idx", "mean", "std", "max", "min", "mean_max", "mean_std", "max_mean", "max_std", "angle"]
-            act_matrix = np.zeros([len(test_intervals), nb_examples, len(layers), len(act_columns)])
-        nb_batches = len(testGen)
-        # criterion = nn.CrossEntropyLoss()
-        # test_loss = 0.
-        _correct, _total = 0, 0
-        _cur = 0 # used only for data matrix
-        for j, data in enumerate(testGen):
-            images, labels = data
-            batch_dim = labels.size(0)
-            correctness = torch.ones(batch_dim)
-            # running_loss = 0.
-            for i in range(len(test_intervals)):
-                imgs = test_fn(images, test_intervals[i])
-                if args.aug_type != "b":
-                    imgs = TF.normalize(imgs, [0.5,0.5,0.5], [0.5,0.5,0.5])
-                if save_results:
-                    ins = net.inspect(imgs)
-                    out = ins["Linear_0"]
-                    confidence, predictions = torch.max(softmax_fn(out), axis=1)
-                else:
-                    out = net(imgs)
-                    _, predictions = torch.max(out, axis=1)
-                result = predictions == labels
-                correctness *= result
-                # loss = criterion(out, labels)
-                # running_loss += loss.item()
-                if save_results:
-                    batch_data = np.array([range(_cur,_cur+batch_dim), list(labels), list(predictions), list(confidence), [test_intervals[i]]*batch_dim])
-                    data_matrix[i][_cur:_cur+batch_dim] = batch_data.transpose(1, 0)
-                    _actbatch = [range(_cur,_cur+batch_dim), list(labels), list(predictions)]
-                    f_idx = 0
-                    for feature_name in net.feature_names:
-                        # Only inspecct conv layers
-                        if "Conv2d" not in feature_name or feature_name[-1] not in layers:
-                            continue
-                        actbatch_data = _actbatch + [[int(layers[f_idx])]*batch_dim] + act_overll_metrics(ins[feature_name])+[[test_intervals[i]]*batch_dim]
-                        act_matrix[i,_cur:_cur+batch_dim,f_idx] = np.array(actbatch_data).transpose(1, 0)
-                        f_idx += 1
+    net = Net(pretrained=False)
+    net.eval()
+    load_model(args, net)
+    testGen = get_dataGen(args)
+    nb_examples = len(testGen.dataset)
+    if save_results:
+        columns = ["idx", "label", "prediction", "confidence", "angle"]
+        data_matrix = np.zeros([len(test_intervals), nb_examples, len(columns)])
+        act_columns = ["idx", "label", "prediction", "f_idx", "mean", "std", "max", "min", "mean_max", "mean_std", "max_mean", "max_std", "angle"]
+        act_matrix = np.zeros([len(test_intervals), nb_examples, len(layers), len(act_columns)])
+    nb_batches = len(testGen)
+    # criterion = nn.CrossEntropyLoss()
+    # test_loss = 0.
+    _correct, _total = 0, 0
+    _cur = 0 # used only for data matrix
+    for j, data in enumerate(testGen):
+        images, labels = data
+        images, labels = images.to(device), labels.to(device)
+        batch_dim = labels.size(0)
+        correctness = torch.ones(batch_dim)
+        # running_loss = 0.
+        for i in range(len(test_intervals)):
+            imgs = test_fn(images, test_intervals[i])
+            if args.aug_type != "b":
+                imgs = TF.normalize(imgs, [0.5,0.5,0.5], [0.5,0.5,0.5])
+            if args.adv:
+                imgs.requires_grad = True
+            if save_results:
+                ins = net.inspect(imgs)
+                out = ins["Linear_0"]
+                confidence, predictions = torch.max(softmax_fn(out), axis=1)
+            else:
+                out = net(imgs)
+                _, predictions = torch.max(out, axis=1)
+            if args.adv:
+                net.zero_grad()
+                loss = criterion(out, labels)
+                loss.backward()
+                img_grad = imgs.grad.data
+                # Call FGSM Attack
+                perturbed_data = fgsm_attack(args, imgs, args.epsilon, img_grad)
+                ins = net.inspect(perturbed_data)
+                out = ins["Linear_0"]
+                confidence, predictions = torch.max(softmax_fn(out), axis=1)
+            result = predictions == labels
+            correctness *= result
+            # loss = criterion(out, labels)
+            # running_loss += loss.item()
+            if save_results:
+                batch_data = np.array([range(_cur,_cur+batch_dim), list(labels), list(predictions), list(confidence), [test_intervals[i]]*batch_dim])
+                data_matrix[i][_cur:_cur+batch_dim] = batch_data.transpose(1, 0)
+                _actbatch = [range(_cur,_cur+batch_dim), list(labels), list(predictions)]
+                f_idx = 0
+                for feature_name in net.feature_names:
+                    # Only inspecct conv layers
+                    if "Conv2d" not in feature_name or feature_name[-1] not in layers:
+                        continue
+                    actbatch_data = _actbatch + [[int(layers[f_idx])]*batch_dim] + act_overll_metrics(ins[feature_name])+[[test_intervals[i]]*batch_dim]
+                    act_matrix[i,_cur:_cur+batch_dim,f_idx] = np.array(actbatch_data).transpose(1, 0)
+                    f_idx += 1
 
-            _cur += batch_dim
-            _correct += sum(correctness).item()
-            _total += labels.size(0)
-            # test_loss += running_loss / len(test_intervals)
-            print(f"Finished processing batch {j}/{nb_batches}")
-        test_acc = _correct / _total
-        # test_loss /= len(testGen)
-        if args.train:
-            prefix = "train_"
-            print("Training set:")
-        else:
-            prefix = "test_"
-            print("Testing set:")
-        # print("Robust_loss: %.3f, Robust_acc: %.3f" % (test_loss, test_acc))
-        print("Robust_acc: %.3f" % test_acc)
-        if save_results:
-            conf_filename = prefix + "results"+ result_filename
-            np.save(os.path.join(args.data_dir, conf_filename), data_matrix)
-            act_filename = prefix + "actoverall"+ result_filename
-            np.save(os.path.join(args.data_dir, act_filename), act_matrix)
-            txtpath = os.path.join(os.path.dirname(args.data_dir), "robustacc.txt")
-            with open(txtpath, "a") as f:
-                f.write(f"{args.mid} {test_acc:.3f}\n")
+        _cur += batch_dim
+        _correct += sum(correctness).item()
+        _total += labels.size(0)
+        # test_loss += running_loss / len(test_intervals)
+        print(f"Finished processing batch {j}/{nb_batches}")
+    test_acc = _correct / _total
+    # test_loss /= len(testGen)
+    if args.train:
+        prefix = "train_"
+        print("Training set:")
+    else:
+        prefix = "test_"
+        print("Testing set:")
+    # print("Robust_loss: %.3f, Robust_acc: %.3f" % (test_loss, test_acc))
+    print("Robust_acc: %.3f" % test_acc)
+    if save_results:
+        conf_filename = prefix + "results"+ result_filename + ".npy"
+        np.save(os.path.join(args.data_dir, conf_filename), data_matrix)
+        act_filename = prefix + "actoverall"+ result_filename + ".npy"
+        np.save(os.path.join(args.data_dir, act_filename), act_matrix)
+        txtpath = os.path.join(os.path.dirname(args.data_dir), "robustacc.txt")
+        with open(txtpath, "a") as f:
+            f.write(f"{args.mid} {test_acc:.3f}\n")
 
 
 if __name__ == "__main__":
@@ -232,10 +267,10 @@ if __name__ == "__main__":
     # plot_rotated_imgs(args, outdir="/Users/z.liao/oxfordXAI/repo/XAffine/plots/1515/ori", test_angles=[-15, 15])
     if args.aug_type == "r":
         test_intervals=[-15, 15]
-        result_filename = "1515.npy"
+        result_filename = "1515"
     else:
         test_intervals=[0.7, 1.3]
-        result_filename = f"0515{args.aug_type}.npy"
+        result_filename = f"0515{args.aug_type}"
     if args.modelname ==  "vgg13bn":
         layers=["8", "9"]
     else:
@@ -243,5 +278,5 @@ if __name__ == "__main__":
     # for mid in range(1, 8+1):
     #     update_mid(args, mid)
     #     print(args)
-    #     robostacc(args, test_intervals=[-15,15], save_results=True, layers=["8", "9"], result_filename="1515.npy")
+    #     robostacc(args, test_intervals=[-15,15], save_results=True, layers=["8", "9"], result_filename="1515")
     robostacc(args, test_intervals, save_results=True, layers=layers, result_filename=result_filename)
