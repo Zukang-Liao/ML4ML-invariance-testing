@@ -11,7 +11,7 @@
 
 下一次任务:
 1. 更新train.py, save_rotation_results.py
-2. 训练、上传的mid：41-50, 60-65, 具体细节全在run_this.txt
+2. 训练、上传的mid：41-50, 61-65, 具体细节全在run_this.txt
 
 
 
