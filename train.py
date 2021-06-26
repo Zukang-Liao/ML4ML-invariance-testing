@@ -241,13 +241,16 @@ def my_optimiser(net, learning_rate=0.01, learning_rate_multi=1):
 
 
 # FGSM attack code
-def fgsm_attack(image, epsilon, data_grad):
+def fgsm_attack(args, image, epsilon, data_grad):
     # Collect the element-wise sign of the data gradient
     sign_data_grad = data_grad.sign()
     # Create the perturbed image by adjusting each pixel of the input image
     perturbed_image = image + epsilon*sign_data_grad
     # Adding clipping to maintain [0,1] range
-    perturbed_image = torch.clamp(perturbed_image, 0, 1)
+    if args.aug_type == "b":
+        perturbed_image = torch.clamp(perturbed_image, 0, 1)
+    else:
+        perturbed_image = torch.clamp(perturbed_image, -0.5, 0.5)
     # Return the perturbed image
     return perturbed_image
 
@@ -284,7 +287,7 @@ def train(args):
             if args.adv:
                 img_grad = images.grad.data
                 # Call FGSM Attack
-                perturbed_data = fgsm_attack(images, args.epsilon, img_grad)
+                perturbed_data = fgsm_attack(args, images, args.epsilon, img_grad)
                 perturbed_out = net(perturbed_data)
                 perturbed_loss = criterion(perturbed_out, labels)
                 perturbed_loss.backward()
