@@ -24,7 +24,7 @@ def argparser():
     parser.add_argument("--batch_size", type=int, default=4)
     parser.add_argument("--nThreads", type=int, default=0)
     parser.add_argument("--train", type=bool, default=False)
-    parser.add_argument("--mid", type=int, default=-1) # model id
+    parser.add_argument("--mid", type=str, default="-1") # model id
     parser.add_argument("--SAVE_DIR", type=str, default="/Users/z.liao/oxfordXAI/repo/XAffine/saved_models/cifar")
     parser.add_argument("--data_dir", type=str, default="/Users/z.liao/oxfordXAI/repo/XAffine/plots")
     parser.add_argument("--aug_type", type=str, default="r")
