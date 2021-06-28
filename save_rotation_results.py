@@ -193,6 +193,15 @@ def robostacc(args, test_intervals, save_results=True, layers=["9"], result_file
     for j, data in enumerate(testGen):
         images, labels = data
         images, labels = images.to(device), labels.to(device)
+        if args.adv:
+            images.requires_grad = True
+            net.zero_grad()
+            out = net(images)
+            loss = criterion(out, labels)
+            loss.backward()
+            img_grad = images.grad.data
+            # Call FGSM Attack
+            images = fgsm_attack(args, images, args.epsilon, img_grad)
         batch_dim = labels.size(0)
         correctness = torch.ones(batch_dim)
         # running_loss = 0.
@@ -200,8 +209,6 @@ def robostacc(args, test_intervals, save_results=True, layers=["9"], result_file
             imgs = test_fn(images, test_intervals[i])
             if args.aug_type != "b":
                 imgs = TF.normalize(imgs, [0.5,0.5,0.5], [0.5,0.5,0.5])
-            if args.adv:
-                imgs.requires_grad = True
             if save_results:
                 ins = net.inspect(imgs)
                 out = ins["Linear_0"]
@@ -209,16 +216,6 @@ def robostacc(args, test_intervals, save_results=True, layers=["9"], result_file
             else:
                 out = net(imgs)
                 _, predictions = torch.max(out, axis=1)
-            if args.adv:
-                net.zero_grad()
-                loss = criterion(out, labels)
-                loss.backward()
-                img_grad = imgs.grad.data
-                # Call FGSM Attack
-                perturbed_data = fgsm_attack(args, imgs, args.epsilon, img_grad)
-                ins = net.inspect(perturbed_data)
-                out = ins["Linear_0"]
-                confidence, predictions = torch.max(softmax_fn(out), axis=1)
             result = predictions == labels
             correctness *= result
             # loss = criterion(out, labels)
