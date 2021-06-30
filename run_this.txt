@@ -1,8 +1,8 @@
-python train.py --mid=41 --epoch=50 --max_aug=15 --batch_size=1024 --lr=0.0001 --adv=True --pretrain=True
-python train.py --mid=42 --epoch=500 --max_aug=15 --batch_size=1024 --lr=0.00001 --adv=True --pretrain=True
-python train.py --mid=43 --epoch=10 --max_aug=15 --batch_size=1024 --lr=0.001 --adv=True --pretrain=True
-python train.py --mid=44 --epoch=5 --max_aug=15 --batch_size=1024 --lr=0.0001 --adv=True --pretrain=True
-python train.py --mid=45 --epoch=50 --max_aug=15 --batch_size=1024 --lr=0.00001 --adv=True --pretrain=True
+python train.py --mid=41 --epoch=50 --max_aug=15 --batch_size=1024 --lr=0.0001 --adv=True --pretrain=True --epsilon=0.015625
+python train.py --mid=42 --epoch=500 --max_aug=15 --batch_size=1024 --lr=0.00001 --adv=True --pretrain=True --epsilon=0.015625
+python train.py --mid=43 --epoch=10 --max_aug=15 --batch_size=1024 --lr=0.001 --adv=True --pretrain=True --epsilon=0.015625
+python train.py --mid=44 --epoch=5 --max_aug=15 --batch_size=1024 --lr=0.0001 --adv=True --pretrain=True --epsilon=0.015625
+python train.py --mid=45 --epoch=50 --max_aug=15 --batch_size=1024 --lr=0.00001 --adv=True --pretrain=True --epsilon=0.015625
 python train.py --mid=46 --epoch=500 --max_aug=15 --batch_size=1024 --lr=0.00001 --adv=True --pretrain=True --epsilon=0.015625
 python train.py --mid=47 --epoch=100 --max_aug=20 --batch_size=1024 --lr=0.0001 --adv=True --pretrain=True --epsilon=0.015625
 python train.py --mid=48 --epoch=500 --max_aug=15 --batch_size=1024 --lr=0.00001 --adv=True --epsilon=0.015625
