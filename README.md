@@ -11,7 +11,8 @@
 
 下一次任务:
 1. 更新train.py, save_rotation_results.py
-2. 训练、上传的mid：41-50, 61-65, 具体细节全在run_this.txt
+2. 训练、上传的mid：117, 41-50, 61-65, 具体细节全在run_this.txt
+注释: 117可能是因为epoch太多, batch size又巨大，所以上次可能跑失败了
 
 
 
