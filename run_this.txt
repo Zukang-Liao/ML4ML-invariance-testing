@@ -1,3 +1,4 @@
+python train.py --mid=117 --epoch=2000 --max_aug=0.2 --batch_size=16384 --lr=0.0001 --pretrain=True --aug_type=b
 python train.py --mid=41 --epoch=50 --max_aug=15 --batch_size=1024 --lr=0.0001 --adv=True --pretrain=True --epsilon=0.015625
 python train.py --mid=42 --epoch=500 --max_aug=15 --batch_size=1024 --lr=0.00001 --adv=True --pretrain=True --epsilon=0.015625
 python train.py --mid=43 --epoch=10 --max_aug=15 --batch_size=1024 --lr=0.001 --adv=True --pretrain=True --epsilon=0.015625
