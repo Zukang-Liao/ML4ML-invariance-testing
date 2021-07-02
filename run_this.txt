@@ -29,18 +29,18 @@ python save_rotation_results.py --mid=62 --aug_type=r
 python save_rotation_results.py --mid=63 --aug_type=r
 python save_rotation_results.py --mid=64 --aug_type=r
 python save_rotation_results.py --mid=65 --aug_type=r
-python save_rotation_results.py --mid=41 --aug_type=r --adv=True --episilon=0.015625
-python save_rotation_results.py --mid=42 --aug_type=r --adv=True --episilon=0.015625
-python save_rotation_results.py --mid=43 --aug_type=r --adv=True --episilon=0.015625
-python save_rotation_results.py --mid=44 --aug_type=r --adv=True --episilon=0.015625
-python save_rotation_results.py --mid=45 --aug_type=r --adv=True --episilon=0.015625
-python save_rotation_results.py --mid=46 --aug_type=r --adv=True --episilon=0.015625
-python save_rotation_results.py --mid=47 --aug_type=r --adv=True --episilon=0.015625
-python save_rotation_results.py --mid=48 --aug_type=r --adv=True --episilon=0.015625
-python save_rotation_results.py --mid=49 --aug_type=r --adv=True --episilon=0.015625
-python save_rotation_results.py --mid=50 --aug_type=r --adv=True --episilon=0.015625
-python save_rotation_results.py --mid=61 --aug_type=r --adv=True --episilon=0.015625
-python save_rotation_results.py --mid=62 --aug_type=r --adv=True --episilon=0.015625
-python save_rotation_results.py --mid=63 --aug_type=r --adv=True --episilon=0.015625
-python save_rotation_results.py --mid=64 --aug_type=r --adv=True --episilon=0.015625
-python save_rotation_results.py --mid=65 --aug_type=r --adv=True --episilon=0.015625
+python save_rotation_results.py --mid=41 --aug_type=r --adv=True --epsilon=0.015625
+python save_rotation_results.py --mid=42 --aug_type=r --adv=True --epsilon=0.015625
+python save_rotation_results.py --mid=43 --aug_type=r --adv=True --epsilon=0.015625
+python save_rotation_results.py --mid=44 --aug_type=r --adv=True --epsilon=0.015625
+python save_rotation_results.py --mid=45 --aug_type=r --adv=True --epsilon=0.015625
+python save_rotation_results.py --mid=46 --aug_type=r --adv=True --epsilon=0.015625
+python save_rotation_results.py --mid=47 --aug_type=r --adv=True --epsilon=0.015625
+python save_rotation_results.py --mid=48 --aug_type=r --adv=True --epsilon=0.015625
+python save_rotation_results.py --mid=49 --aug_type=r --adv=True --epsilon=0.015625
+python save_rotation_results.py --mid=50 --aug_type=r --adv=True --epsilon=0.015625
+python save_rotation_results.py --mid=61 --aug_type=r --adv=True --epsilon=0.015625
+python save_rotation_results.py --mid=62 --aug_type=r --adv=True --epsilon=0.015625
+python save_rotation_results.py --mid=63 --aug_type=r --adv=True --epsilon=0.015625
+python save_rotation_results.py --mid=64 --aug_type=r --adv=True --epsilon=0.015625
+python save_rotation_results.py --mid=65 --aug_type=r --adv=True --epsilon=0.015625
