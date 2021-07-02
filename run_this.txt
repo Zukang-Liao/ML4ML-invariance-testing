@@ -1,3 +1,36 @@
+本轮：
+python train.py --mid=201 --epoch=20 --max_aug=0.3 --batch_size=8 --lr=0.00001 --pretrain=True --aug_type=s
+python train.py --mid=202 --epoch=30 --max_aug=0.9 --batch_size=8 --lr=0.00001 --pretrain=True --aug_type=s
+python train.py --mid=203 --epoch=10 --max_aug=0 --batch_size=8 --lr=0.00001 --pretrain=True --aug_type=s
+python train.py --mid=204 --epoch=10 --max_aug=0 --batch_size=8 --lr=0.00001 --aug_type=s
+python train.py --mid=205 --epoch=30 --max_aug=0 --batch_size=8 --lr=0.0001 --aug_type=s
+python train.py --mid=206 --epoch=30 --max_aug=0.3 --batch_size=8 --lr=0.0001 --aug_type=s
+python train.py --mid=207 --epoch=10 --max_aug=0.1 --batch_size=8 --lr=0.00001 --pretrain=True --aug_type=s
+python train.py --mid=208 --epoch=15 --max_aug=0.4 --batch_size=8 --lr=0.00001 --pretrain=True --aug_type=s
+python train.py --mid=209 --epoch=50 --max_aug=0.4 --batch_size=8 --lr=0.001 --aug_type=s
+python train.py --mid=210 --epoch=5 --max_aug=0.4 --batch_size=8 --lr=0.0001 --pretrain=True --aug_type=s
+python train.py --mid=211 --epoch=1 --max_aug=0.4 --batch_size=8 --lr=0.00001 --pretrain=True --aug_type=s
+python train.py --mid=212 --epoch=3 --max_aug=0.3 --batch_size=8 --lr=0.0001 --pretrain=True --aug_type=s
+python train.py --mid=213 --epoch=30 --max_aug=0.3 --batch_size=8 --lr=0.00001 --pretrain=True --aug_type=s
+python train.py --mid=214 --epoch=43 --max_aug=0.3 --batch_size=8 --lr=0.0001 --pretrain=True --aug_type=s
+python train.py --mid=215 --epoch=100 --max_aug=0.3 --batch_size=8 --lr=0.0001 --pretrain=True --aug_type=s
+python save_rotation_results.py --mid=201 --aug_type=s
+python save_rotation_results.py --mid=202 --aug_type=s
+python save_rotation_results.py --mid=203 --aug_type=s
+python save_rotation_results.py --mid=204 --aug_type=s
+python save_rotation_results.py --mid=205 --aug_type=s
+python save_rotation_results.py --mid=206 --aug_type=s
+python save_rotation_results.py --mid=207 --aug_type=s
+python save_rotation_results.py --mid=208 --aug_type=s
+python save_rotation_results.py --mid=209 --aug_type=s
+python save_rotation_results.py --mid=210 --aug_type=s
+python save_rotation_results.py --mid=211 --aug_type=s
+python save_rotation_results.py --mid=212 --aug_type=s
+python save_rotation_results.py --mid=213 --aug_type=s
+python save_rotation_results.py --mid=214 --aug_type=s
+python save_rotation_results.py --mid=215 --aug_type=s
+
+上一轮：
 python train.py --mid=117 --epoch=2000 --max_aug=0.2 --batch_size=16384 --lr=0.0001 --pretrain=True --aug_type=b
 python train.py --mid=41 --epoch=50 --max_aug=15 --batch_size=1024 --lr=0.0001 --adv=True --pretrain=True --epsilon=0.015625
 python train.py --mid=42 --epoch=500 --max_aug=15 --batch_size=1024 --lr=0.00001 --adv=True --pretrain=True --epsilon=0.015625
