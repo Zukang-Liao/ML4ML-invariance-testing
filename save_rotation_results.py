@@ -16,8 +16,11 @@ import collections
 
 MNIST_DIR = '/Users/z.liao/dataset/MNIST'
 CIFAR10_DIR = '/Users/z.liao/dataset/CIFAR10'
+# MNIST_DIR = 'dataset/MNIST'
+# CIFAR10_DIR = 'dataset/CIFAR10'
 classes = ['plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
 
 def argparser():
     parser = argparse.ArgumentParser()
@@ -25,12 +28,18 @@ def argparser():
     parser.add_argument("--nThreads", type=int, default=0)
     parser.add_argument("--train", type=bool, default=False)
     parser.add_argument("--mid", type=str, default="-1") # model id
+   
     parser.add_argument("--SAVE_DIR", type=str, default="/Users/z.liao/oxfordXAI/repo/XAffine/saved_models/cifar")
     parser.add_argument("--data_dir", type=str, default="/Users/z.liao/oxfordXAI/repo/XAffine/plots")
+    # parser.add_argument("--SAVE_DIR", type=str,default="saved_models/cifar")
+    # parser.add_argument("--data_dir", type=str, default="saved_models/cifar/plots")
+
     parser.add_argument("--aug_type", type=str, default="r")
     parser.add_argument("--modelname", type=str, default="vgg13bn")
     parser.add_argument("--adv", type=bool, default=False)
     parser.add_argument("--epsilon", type=float, default=0.0)
+    parser.add_argument("--nb_intervals", type=int, default=31)
+
     args = parser.parse_args()
     args.data_dir = os.path.join(args.data_dir, str(args.mid))
     if not os.path.exists(args.data_dir):
@@ -113,6 +122,7 @@ def test(args):
 
 def load_model(args, net):
     device_ids = torch.cuda.device_count()
+    print("GPU数量:", device_ids)
     if device_ids == 0:
         try:
             state_dict = torch.load(args.SAVE_PATH, map_location=torch.device('cpu'))
@@ -154,7 +164,7 @@ def robostacc(args, test_intervals, save_results=True, layers=["9"], result_file
         test_intervals = list(range(test_intervals[0], test_intervals[-1]+1))
         test_fn = TF.rotate
     else:
-        test_intervals = np.linspace(test_intervals[0], test_intervals[1], 31) # 31 intervals
+        test_intervals = np.linspace(test_intervals[0], test_intervals[1], args.nb_intervals) # 31 intervals
         if args.aug_type == "s":
             test_fn = lambda x,y: TF.affine(x, scale=y, angle=0, translate=[0,0], shear=0)
         elif args.aug_type == "b":
@@ -177,7 +187,10 @@ def robostacc(args, test_intervals, save_results=True, layers=["9"], result_file
 
     net = Net(pretrained=False)
     net.eval()
+    # net = net.cuda()
     load_model(args, net)
+    print("网络测试")
+    print(net)
     testGen = get_dataGen(args)
     nb_examples = len(testGen.dataset)
     if save_results:
@@ -204,9 +217,11 @@ def robostacc(args, test_intervals, save_results=True, layers=["9"], result_file
             images = fgsm_attack(args, images, args.epsilon, img_grad)
         batch_dim = labels.size(0)
         correctness = torch.ones(batch_dim)
+        correctness = correctness.to(device)
         # running_loss = 0.
         for i in range(len(test_intervals)):
             imgs = test_fn(images, test_intervals[i])
+            imgs = imgs.to(device) 
             if args.aug_type != "b":
                 imgs = TF.normalize(imgs, [0.5,0.5,0.5], [0.5,0.5,0.5])
             if save_results:
@@ -221,18 +236,18 @@ def robostacc(args, test_intervals, save_results=True, layers=["9"], result_file
             # loss = criterion(out, labels)
             # running_loss += loss.item()
             if save_results:
-                batch_data = np.array([range(_cur,_cur+batch_dim), list(labels), list(predictions), list(confidence), [test_intervals[i]]*batch_dim])
+                batch_data = np.array([range(_cur,_cur+batch_dim), labels.cpu().detach().numpy(), predictions.cpu().detach().numpy(), confidence.cpu().detach().numpy(), [test_intervals[i]]*batch_dim])
                 data_matrix[i][_cur:_cur+batch_dim] = batch_data.transpose(1, 0)
-                _actbatch = [range(_cur,_cur+batch_dim), list(labels), list(predictions)]
+                _actbatch = [range(_cur,_cur+batch_dim), labels.cpu().detach().numpy(), predictions.cpu().detach().numpy()]
+                # _actbatch = [range(_cur,_cur+batch_dim), list(labels.cpu().detach().numpy()), list(predictions.cpu().detach().numpy())]
                 f_idx = 0
                 for feature_name in net.feature_names:
                     # Only inspecct conv layers
                     if "Conv2d" not in feature_name or feature_name[-1] not in layers:
                         continue
-                    actbatch_data = _actbatch + [[int(layers[f_idx])]*batch_dim] + act_overll_metrics(ins[feature_name])+[[test_intervals[i]]*batch_dim]
+                    actbatch_data = _actbatch + [[int(layers[f_idx])]*batch_dim] + act_overll_metrics(ins[feature_name].cpu())+[[test_intervals[i]]*batch_dim]
                     act_matrix[i,_cur:_cur+batch_dim,f_idx] = np.array(actbatch_data).transpose(1, 0)
                     f_idx += 1
-
         _cur += batch_dim
         _correct += sum(correctness).item()
         _total += labels.size(0)
