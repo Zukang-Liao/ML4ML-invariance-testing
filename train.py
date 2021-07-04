@@ -17,6 +17,8 @@ from sampler import imbalanceSampler, orderedSampler
 
 MNIST_DIR = '/Users/z.liao/dataset/MNIST'
 CIFAR10_DIR = '/Users/z.liao/dataset/CIFAR10'
+# MNIST_DIR = 'dataset/MNIST'
+# CIFAR10_DIR = 'dataset/CIFAR10'
 classes = ['plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -29,8 +31,12 @@ def argparser():
     parser.add_argument("--pretrain", type=bool, default=False)
     parser.add_argument("--lr", type=float, default=0.00001)
     parser.add_argument("--mid", type=str, default="-1") # model id
+
     parser.add_argument("--SAVE_DIR", type=str, default="/Users/z.liao/oxfordXAI/repo/XAffine/saved_models/cifar")
     parser.add_argument("--LOG_DIR", type=str, default="/Users/z.liao/oxfordXAI/repo/XAffine/saved_models/cifar/logs")
+    # parser.add_argument("--SAVE_DIR", type=str,default="saved_models/cifar")
+    # parser.add_argument("--LOG_DIR", type=str, default="saved_models/cifar/logs")
+
     parser.add_argument("--safe_mode", type=bool, default=True)
     # max_aug=0.2 means x1.2 or x0.8 for scaling
     parser.add_argument("--max_aug", type=float, default=15)
