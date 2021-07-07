@@ -6,15 +6,15 @@
 3. plot里的mid文件夹
 
 本次任务:
-1. 更新train.py, save_rotation_results.py
-2. 训练、上传的mid：117, 41-50, 61-65, 具体细节看run_this.txt
-
-注释: 117上次可能是因为batchsize巨大?在epoch0就失败了
+1. (本次不需要)更新train.py, save_rotation_results.py
+2. 训练、上传的mid：216-230, 具体细节看run_this.txt
+3. 117, 201-215的robustacc.txt忘记更新了记得补一下
 
 下一次任务:
-1. 更新train.py, save_rotation_results.py
-2. 训练、上传的mid：201-215, 具体细节全在run_this.txt
+1. 待定
 
+上一次任务:
+1. 训练、上传的mid：117, 41-50, 61-65, 201-215具体细节看run_this.txt
 
 
 overleaf:
