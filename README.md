@@ -7,7 +7,7 @@
 
 本次任务:
 1. (本次不需要)更新train.py, save_rotation_results.py
-2. 训练、上传的mid: 231-250, 具体细节看run_this.txt
+2. 训练、上传的mid: 131-150, 231-250, 具体细节看run_this.txt
 3. 上传mid plot: 117, 41-50, 61-65
 4. 记得上传新的model_label.txt和robustacc.txt
 
