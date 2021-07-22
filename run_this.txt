@@ -1,4 +1,8 @@
 本轮：
+python train.py --mid=132 --epoch=50 --max_aug=0.3 --batch_size=1024 --lr=0.0001 --anomaly=1 --pretrain=True --aug_type=b
+python train.py --mid=232 --epoch=50 --max_aug=0.3 --batch_size=1024 --lr=0.0001 --anomaly=1 --pretrain=True --aug_type=s
+
+上一轮：
 python train.py --mid=131 --epoch=50 --max_aug=0.3 --batch_size=1024 --lr=0.0001 --anomaly=3 --target_class=5 --r=0.2 --pretrain=True --aug_type=b
 python train.py --mid=132 --epoch=50 --max_aug=0.3 --batch_size=1024 --lr=0.0001 --anomaly=4 --pretrain=True --aug_type=b
 python train.py --mid=133 --epoch=50 --max_aug=0.3 --batch_size=1024 --lr=0.0001 --anomaly=5 --r=0.2 --pretrain=True --aug_type=b
