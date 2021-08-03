@@ -91,3 +91,15 @@ python save_rotation_results.py --mid=t39 --aug_type=r
 python save_rotation_results.py --mid=t40 --aug_type=r
 python save_rotation_results.py --mid=t41 --aug_type=r
 
+
+Next round:
+python train.py --mid=t42 --epoch=50 --max_aug=15 --batch_size=1024 --lr=0.0001 --anomaly=7 --noise=0.05 --pretrain=True --aug_type=r
+python train.py --mid=t43 --epoch=50 --max_aug=15 --batch_size=1024 --lr=0.0001 --anomaly=2 --pretrain=True --noise=0.05 --aug_type=r
+python train.py --mid=t44 --epoch=50 --max_aug=15 --batch_size=1024 --lr=0.0001 --anomaly=7 --noise=0.2 --pretrain=True --aug_type=r
+python train.py --mid=t45 --epoch=50 --max_aug=15 --batch_size=1024 --lr=0.0001 --anomaly=2 --pretrain=True --noise=0.2 --aug_type=r
+python train.py --mid=t46 --epoch=50 --max_aug=15 --batch_size=1024 --lr=0.0001 --anomaly=7 --noise=0.1 --pretrain=True --adv=True --epsilon=0.015625 --aug_type=r
+python train.py --mid=t47 --epoch=50 --max_aug=15 --batch_size=1024 --lr=0.0001 --anomaly=2 --pretrain=True --noise=0.1 --adv=True --epsilon=0.015625 --aug_type=r
+python train.py --mid=t48 --epoch=50 --max_aug=15 --batch_size=1024 --lr=0.0001 --anomaly=3 --target_class=4 --r=0.7 --pretrain=True --aug_type=r
+python train.py --mid=t49 --epoch=50 --max_aug=15 --batch_size=1024 --lr=0.0001 --anomaly=3 --target_class=4 --r=0.3 --pretrain=True --adv=True --epsilon=0.015625 --aug_type=r
+python train.py --mid=t50 --epoch=50 --max_aug=15 --batch_size=1024 --lr=0.0001 --anomaly=8 --r=0.3 --aug_type=r
+
