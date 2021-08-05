@@ -7,15 +7,14 @@
 
 本次任务:
 1. (本次不需要)更新train.py, save_rotation_results.py
-2. 训练、上传的mid: 251-300, 具体细节看run_this.txt
-3. 上传+覆盖132，232的plot
+2. 训练、上传的mid: 251-300, t42-t50, 具体细节看run_this.txt
 4. 记得上传新的model_label.txt和robustacc.txt
 
 下一次任务:
 1. 训练、上传：待定
 
 上一次任务:
-1. 训练、上传：t23-t41
+1. 训练、上传：251-300
 
 
 overleaf:
