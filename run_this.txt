@@ -69,6 +69,11 @@ python save_rotation_results.py --mid=299 --aug_type=s
 python save_rotation_results.py --mid=300 --aug_type=s
 
 
+下一轮
+python train.py --mid=221 --epoch=1500 --max_aug=0.1 --batch_size=16384 --lr=0.0001 --aug_type=s
+python save_rotation_results.py --mid=221 --aug_type=s
+
+
 上一轮：
 python train.py --mid=251 --epoch=50 --max_aug=0.3 --batch_size=1024 --lr=0.0001 --anomaly=8 --pretrain=True --r=0.05 --aug_type=s
 python train.py --mid=252 --epoch=50 --max_aug=0.3 --batch_size=1024 --lr=0.0001 --anomaly=8 --pretrain=True --r=0.1 --aug_type=s
