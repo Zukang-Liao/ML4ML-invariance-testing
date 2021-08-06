@@ -71,7 +71,107 @@ python save_rotation_results.py --mid=300 --aug_type=s
 
 下一轮
 python train.py --mid=221 --epoch=1500 --max_aug=0.1 --batch_size=16384 --lr=0.0001 --aug_type=s
+python train.py --mid=t101 --epoch=5 --max_aug=0.3 --batch_size=1024 --lr=0.01 --aug_type=b
+python train.py --mid=t102 --epoch=50 --max_aug=0.3 --batch_size=1024 --lr=0.01 --aug_type=b
+python train.py --mid=t103 --epoch=100 --max_aug=0.3 --batch_size=1024 --lr=0.01 --pretrain=True --aug_type=b
+python train.py --mid=t104 --epoch=100 --max_aug=0.3 --batch_size=1024 --lr=0.01 --aug_type=b
+python train.py --mid=t105 --epoch=500 --max_aug=0.3 --batch_size=1024 --lr=0.01 --aug_type=b
+python train.py --mid=t106 --epoch=1000 --max_aug=0.3 --batch_size=1024 --lr=0.01 --pretrain=True --aug_type=b
+python train.py --mid=t107 --epoch=1000 --max_aug=0.3 --batch_size=1024 --lr=0.01 --aug_type=b
+python train.py --mid=t108 --epoch=50 --max_aug=0.3 --batch_size=1024 --lr=0.001 --pretrain=True --aug_type=b
+python train.py --mid=t109 --epoch=50 --max_aug=0.3 --batch_size=1024 --lr=0.001 --aug_type=b
+python train.py --mid=t110 --epoch=100 --max_aug=0.3 --batch_size=1024 --lr=0.001 --pretrain=True --aug_type=b
+python train.py --mid=t111 --epoch=100 --max_aug=0.3 --batch_size=1024 --lr=0.001 --aug_type=b
+python train.py --mid=t112 --epoch=500 --max_aug=0.3 --batch_size=1024 --lr=0.001 --pretrain=True --aug_type=b
+python train.py --mid=t113 --epoch=500 --max_aug=0.3 --batch_size=1024 --lr=0.001 --aug_type=b
+python train.py --mid=t114 --epoch=1000 --max_aug=0.3 --batch_size=1024 --lr=0.001 --pretrain=True --aug_type=b
+python train.py --mid=t115 --epoch=1000 --max_aug=0.3 --batch_size=1024 --lr=0.001 --aug_type=b
+python train.py --mid=t116 --epoch=5 --max_aug=0.3 --batch_size=1024 --lr=0.00001 --pretrain=True --aug_type=b
+python train.py --mid=t117 --epoch=5 --max_aug=0.3 --batch_size=1024 --lr=0.00001 --aug_type=b
+python train.py --mid=t118 --epoch=50 --max_aug=0.3 --batch_size=1024 --lr=0.00001 --aug_type=b
+python train.py --mid=t119 --epoch=100 --max_aug=0.3 --batch_size=1024 --lr=0.00001 --pretrain=True --aug_type=b
+python train.py --mid=t120 --epoch=100 --max_aug=0.3 --batch_size=1024 --lr=0.00001 --aug_type=b
+python train.py --mid=t121 --epoch=1000 --max_aug=0.3 --batch_size=1024 --lr=0.00001 --pretrain=True --aug_type=b
+python train.py --mid=t122 --epoch=1000 --max_aug=0.3 --batch_size=1024 --lr=0.00001 --aug_type=b
+python train.py --mid=t123 --epoch=50 --max_aug=0 --batch_size=1024 --lr=0.0001 --aug_type=b
+python train.py --mid=t124 --epoch=50 --max_aug=0.3 --batch_size=1024 --lr=0.0001 --anomaly=7 --pretrain=True --noise=0.1 --aug_type=b
+python train.py --mid=t125 --epoch=50 --max_aug=0.1 --batch_size=1024 --lr=0.0001 --anomaly=8 --pretrain=True --r=0.5 --adv=True --epsilon=0.015625 --aug_type=b
+python train.py --mid=t126 --epoch=50 --max_aug=0.4 --batch_size=1024 --lr=0.0001 --anomaly=2 --pretrain=True --noise=0.1 --aug_type=b
+python train.py --mid=t127 --epoch=50 --max_aug=0.3 --batch_size=1024 --lr=0.0001 --anomaly=1 --pretrain=True --aug_type=b
+python train.py --mid=t128 --epoch=50 --max_aug=0.3 --batch_size=1024 --lr=0.0001 --anomaly=3 --target_class=3 --r=0.1 --pretrain=True --aug_type=b
+python train.py --mid=t129 --epoch=50 --max_aug=0.3 --batch_size=1024 --lr=0.0001 --anomaly=3 --target_class=4 --r=0.3 --pretrain=True --aug_type=b
+python train.py --mid=t130 --epoch=50 --max_aug=0.3 --batch_size=1024 --lr=0.0001 --anomaly=5 --r=0.2 --pretrain=True --aug_type=b
+python train.py --mid=t131 --epoch=50 --max_aug=0.3 --batch_size=1024 --lr=0.0001 --anomaly=5 --r=0.5 --pretrain=True --aug_type=b
+python train.py --mid=t132 --epoch=50 --max_aug=0.3 --batch_size=1024 --lr=0.0001 --anomaly=6 --pretrain=True --aug_type=b
+python train.py --mid=t133 --epoch=50 --max_aug=0.3 --batch_size=1024 --lr=0.0001 --anomaly=6 --pretrain=True --aug_type=b
+python train.py --mid=t134 --epoch=50 --max_aug=0.1 --batch_size=1024 --lr=0.0001 --anomaly=8 --r=0.1 --aug_type=b
+python train.py --mid=t135 --epoch=50 --max_aug=0.4 --batch_size=1024 --lr=0.0001 --anomaly=8 --r=0.5 --aug_type=b
+python train.py --mid=t136 --epoch=50 --max_aug=0.3 --batch_size=1024 --lr=0.00001 --adv=True --pretrain=True --epsilon=0.015625 --aug_type=b
+python train.py --mid=t137 --epoch=100 --max_aug=0.4 --batch_size=1024 --lr=0.00001 --adv=True --pretrain=True --epsilon=0.015625 --aug_type=b
+python train.py --mid=t138 --epoch=100 --max_aug=0.4 --batch_size=1024 --lr=0.0001 --adv=True --epsilon=0.015625 --aug_type=b
+python train.py --mid=t139 --epoch=50 --max_aug=0.9 --batch_size=1024 --lr=0.0001 --pretrain=True --aug_type=b
+python train.py --mid=t140 --epoch=5 --max_aug=0.3 --batch_size=1024 --lr=0.01 --pretrain=True --aug_type=b
+python train.py --mid=t141 --epoch=50 --max_aug=0.3 --batch_size=1024 --lr=0.001 --pretrain=True --aug_type=b
+python train.py --mid=t142 --epoch=50 --max_aug=0.3 --batch_size=1024 --lr=0.0001 --anomaly=7 --noise=0.05 --pretrain=True --aug_type=b
+python train.py --mid=t143 --epoch=50 --max_aug=0.3 --batch_size=1024 --lr=0.0001 --anomaly=2 --pretrain=True --noise=0.05 --aug_type=b
+python train.py --mid=t144 --epoch=50 --max_aug=0.3 --batch_size=1024 --lr=0.0001 --anomaly=7 --noise=0.2 --pretrain=True --aug_type=b
+python train.py --mid=t145 --epoch=50 --max_aug=0.3 --batch_size=1024 --lr=0.0001 --anomaly=2 --pretrain=True --noise=0.2 --aug_type=b
+python train.py --mid=t146 --epoch=50 --max_aug=0.3 --batch_size=1024 --lr=0.0001 --anomaly=7 --noise=0.1 --pretrain=True --adv=True --epsilon=0.015625 --aug_type=b
+python train.py --mid=t147 --epoch=50 --max_aug=0.3 --batch_size=1024 --lr=0.0001 --anomaly=2 --pretrain=True --noise=0.1 --adv=True --epsilon=0.015625 --aug_type=b
+python train.py --mid=t148 --epoch=50 --max_aug=0.3 --batch_size=1024 --lr=0.0001 --anomaly=3 --target_class=4 --r=0.7 --pretrain=True --aug_type=b
+python train.py --mid=t149 --epoch=50 --max_aug=0.3 --batch_size=1024 --lr=0.0001 --anomaly=3 --target_class=4 --r=0.3 --pretrain=True --adv=True --epsilon=0.015625 --aug_type=b
+python train.py --mid=t150 --epoch=50 --max_aug=0.3 --batch_size=1024 --lr=0.0001 --anomaly=8 --r=0.3 --aug_type=b
 python save_rotation_results.py --mid=221 --aug_type=s
+python save_rotation_results.py --mid=t101 --aug_type=b
+python save_rotation_results.py --mid=t102 --aug_type=b
+python save_rotation_results.py --mid=t103 --aug_type=b
+python save_rotation_results.py --mid=t104 --aug_type=b
+python save_rotation_results.py --mid=t105 --aug_type=b
+python save_rotation_results.py --mid=t106 --aug_type=b
+python save_rotation_results.py --mid=t107 --aug_type=b
+python save_rotation_results.py --mid=t108 --aug_type=b
+python save_rotation_results.py --mid=t109 --aug_type=b
+python save_rotation_results.py --mid=t110 --aug_type=b
+python save_rotation_results.py --mid=t111 --aug_type=b
+python save_rotation_results.py --mid=t112 --aug_type=b
+python save_rotation_results.py --mid=t113 --aug_type=b
+python save_rotation_results.py --mid=t114 --aug_type=b
+python save_rotation_results.py --mid=t115 --aug_type=b
+python save_rotation_results.py --mid=t116 --aug_type=b
+python save_rotation_results.py --mid=t117 --aug_type=b
+python save_rotation_results.py --mid=t118 --aug_type=b
+python save_rotation_results.py --mid=t119 --aug_type=b
+python save_rotation_results.py --mid=t120 --aug_type=b
+python save_rotation_results.py --mid=t121 --aug_type=b
+python save_rotation_results.py --mid=t122 --aug_type=b
+python save_rotation_results.py --mid=t123 --aug_type=b
+python save_rotation_results.py --mid=t124 --aug_type=b
+python save_rotation_results.py --mid=t125 --aug_type=b
+python save_rotation_results.py --mid=t126 --aug_type=b
+python save_rotation_results.py --mid=t127 --aug_type=b
+python save_rotation_results.py --mid=t128 --aug_type=b
+python save_rotation_results.py --mid=t129 --aug_type=b
+python save_rotation_results.py --mid=t130 --aug_type=b
+python save_rotation_results.py --mid=t131 --aug_type=b
+python save_rotation_results.py --mid=t132 --aug_type=b
+python save_rotation_results.py --mid=t133 --aug_type=b
+python save_rotation_results.py --mid=t134 --aug_type=b
+python save_rotation_results.py --mid=t135 --aug_type=b
+python save_rotation_results.py --mid=t136 --aug_type=b
+python save_rotation_results.py --mid=t137 --aug_type=b
+python save_rotation_results.py --mid=t138 --aug_type=b
+python save_rotation_results.py --mid=t139 --aug_type=b
+python save_rotation_results.py --mid=t140 --aug_type=b
+python save_rotation_results.py --mid=t141 --aug_type=b
+python save_rotation_results.py --mid=t142 --aug_type=b
+python save_rotation_results.py --mid=t143 --aug_type=b
+python save_rotation_results.py --mid=t144 --aug_type=b
+python save_rotation_results.py --mid=t145 --aug_type=b
+python save_rotation_results.py --mid=t146 --aug_type=b
+python save_rotation_results.py --mid=t147 --aug_type=b
+python save_rotation_results.py --mid=t148 --aug_type=b
+python save_rotation_results.py --mid=t149 --aug_type=b
+python save_rotation_results.py --mid=t150 --aug_type=b
 
 
 上一轮：
