@@ -1,5 +1,8 @@
 # invariancetest
 
+
+https://web.archive.org/web/20160626050607id_/http://www.econ.upf.edu:80/~lugosi/mlss_conc.pdf
+
 每次上传到drive的部分:
 1. model_label.txt
 2. robustacc.txt
