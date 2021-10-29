@@ -12,7 +12,7 @@
 # Mid starting with "t" is a hold-out set. 
 # When using three-fold cross validation, the hold-out set is always treated as one fold.
 # While the rest "regular" models are randomly split into two folds.
-
+# Results are NOT saved.
 
 import os
 import json
