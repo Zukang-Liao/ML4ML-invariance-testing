@@ -24,17 +24,17 @@ def argparser():
     # if you have generated test_resultsxxxx.npy for other testing interval, rather than [-15, 15], please specify here.
     parser.add_argument("--plot_foldername", type=str, default="1515")
 
-
     # You must specify:
     parser.add_argument("--mid", type=str, default="-1") # model id
-    # If we split the data into correcly classified and misclassified examples
-    parser.add_argument("--correct_split", type=bool, default=True)
-    # If correct_split, whether we make the two splits the same number of data objects.
-    parser.add_argument("--equal_split", type=bool, default=False) 
     # "r": rotation, "b": brightness, "s": scaling
     parser.add_argument("--aug_type", type=str, default="r")
 
-
+    # Optonal:
+    # If we split the data into correcly classified and misclassified examples
+    parser.add_argument("--correct_split", type=bool, default=True)
+    # If correct_split, whether we make the two splits the same number of data objects.
+    parser.add_argument("--equal_split", type=bool, default=False)
+    
     # Fixed parameters for this work:
     parser.add_argument("--seed", type=int, default=2)
     parser.add_argument("--flip_y", type=bool, default=True)
