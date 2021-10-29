@@ -1,4 +1,8 @@
 # This script use transformed test input to test CNNs
+# Output: (1) invariance testing data (result_filename.npy) at args.data_dir 
+#                1.1 test_results1515.npy     -- CONF
+#                1.2 test_actoverall1515.npy  -- CONV (the last two layers in this work)
+#         (2) append the robust accuracy result to robustacc.txt at args.data_dir
 
 import os
 import torch
@@ -8,16 +12,14 @@ import torch.nn as nn
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 import torchvision.transforms.functional as TF
-from model import Net
+from model import Net, SimpleNet
 import numpy as np
 import matplotlib.pyplot as plt
 from torchsummary import summary
 import collections
 
-MNIST_DIR = '/Users/z.liao/dataset/MNIST'
-CIFAR10_DIR = '/Users/z.liao/dataset/CIFAR10'
-# MNIST_DIR = 'dataset/MNIST'
-# CIFAR10_DIR = 'dataset/CIFAR10'
+MNIST_DIR = 'dataset/MNIST'
+CIFAR10_DIR = 'dataset/CIFAR10'
 classes = ['plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -29,100 +31,52 @@ def argparser():
     parser.add_argument("--train", type=bool, default=False)
     parser.add_argument("--mid", type=str, default="-1") # model id
    
-    parser.add_argument("--SAVE_DIR", type=str, default="/Users/z.liao/oxfordXAI/repo/XAffine/saved_models/cifar")
-    parser.add_argument("--data_dir", type=str, default="/Users/z.liao/oxfordXAI/repo/XAffine/plots")
-    # parser.add_argument("--SAVE_DIR", type=str,default="saved_models/cifar")
-    # parser.add_argument("--data_dir", type=str, default="saved_models/cifar/plots")
+    parser.add_argument("--SAVE_DIR", type=str,default="saved_models/cifar")
+    parser.add_argument("--data_dir", type=str, default="saved_models/cifar/plots")
+    parser.add_argument("--dbname", type=str, default="cifar")
 
     parser.add_argument("--aug_type", type=str, default="r")
     parser.add_argument("--modelname", type=str, default="vgg13bn")
     parser.add_argument("--adv", type=bool, default=False)
     parser.add_argument("--epsilon", type=float, default=0.0)
     parser.add_argument("--nb_intervals", type=int, default=31)
+    parser.add_argument("--keep_steps", type=bool, default=False)
 
     args = parser.parse_args()
     args.data_dir = os.path.join(args.data_dir, str(args.mid))
     if not os.path.exists(args.data_dir):
         os.makedirs(args.data_dir)
+    args.SAVE_DIR = os.path.join(args.SAVE_DIR, args.dbname)
     args.SAVE_PATH = os.path.join(args.SAVE_DIR, f"{args.mid}.pth")
     if args.adv:
         assert 0 < args.epsilon < 1, "Please specify epsilon for adversarial training"
+    if args.keep_steps:
+        args.steps = [1, 3, 5, 10, 20, 30, 50, 100, 200, 500, 1000]
+    if args.dbname == "mnist":
+        print("Testing MNIST")
+        args.modelname = "simple"
     return args
 
-# from utils import get_even_array
-def get_even_array(a_min, a_max, nb_elements):
-    assert nb_elements >=2, "Number of elements must be greater than 1"
-    result = np.zeros(nb_elements)
-    total = a_max - a_min
-    increment = total/(nb_elements-1)
-    for i in range(nb_elements):
-        result[i] = a_min + i * increment
-    return result
-
-def update_mid(args, mid):
-    args.mid = mid
-    args.data_dir = os.path.join(os.path.dirname(args.data_dir), str(args.mid))
-    if not os.path.exists(args.data_dir):
-        os.makedirs(args.data_dir)
-    args.SAVE_PATH = os.path.join(args.SAVE_DIR, f"{args.mid}.pth")
 
 def get_transform():
     transform = transforms.Compose([transforms.ToTensor()])
     return transform
 
-def get_dataGen(args, class_idx=5):
+
+def get_dataGen(args):
     transform = get_transform() # have to convert PIL objects to tensors
-    data = torchvision.datasets.CIFAR10(CIFAR10_DIR, train=args.train, transform=transform, download=True)
-    # sampler = mySampler(data, class_idx=class_idx) if args.dog else None
+    if args.dbname == "cifar":
+        data = torchvision.datasets.CIFAR10(CIFAR10_DIR, train=args.train, transform=transform, download=True)
+    elif args.dbname == "mnist":
+        data = torchvision.datasets.MNIST(MNIST_DIR, train=args.train, transform=transform, download=True)
     sampler = None
     dataGen = DataLoader(data, batch_size=args.batch_size, shuffle=False, sampler=sampler, num_workers=args.nThreads)
     return dataGen
 
-def plot_rotated_imgs(args, outdir):
-    if not os.path.exists(outdir):
-        os.makedirs(outdir)
-    dataset = get_dataGen(args).dataset
-    img, label = dataset[0]
-    img = img * 0.5 + 0.5
-    for i, angle in enumerate(test_angles):
-        image = TF.rotate(img, angle).permute(1, 2, 0)
-        plot_title = f"image@{angle}"
-        plt.imshow(image)
-        plt.title(plot_title)
-        plt.savefig(os.path.join(outdir, plot_title+".jpg"))
-        plt.clf()
-        plt.close()
-
-# normal testing   
-def test(args):
-    with torch.no_grad():
-        net = Net(pretrained=False)
-        net.eval()
-        load_model(args, net)
-        dataGen = get_dataGen(args)
-        criterion = nn.CrossEntropyLoss()
-        _loss = 0.
-        _correct, _total = 0, 0
-        for i, data in enumerate(dataGen):
-            images, labels = data
-            out = net(images)
-            _, predictions = torch.max(out, axis=1)
-            _correct += sum(predictions == labels).item()
-            _total += labels.size(0)
-            loss = criterion(out, labels)
-            _loss += loss.item()
-        _acc = _correct / _total
-        _loss /= len(dataGen)
-        if args.train:
-            print("Training:")
-        else:
-            print("Testing")
-        print("loss: %.3f, acc: %.3f" % (_loss, _acc))
-
 
 def load_model(args, net):
     device_ids = torch.cuda.device_count()
-    print("GPU数量:", device_ids)
+    print("Number of GPU(s):", device_ids)
     if device_ids == 0:
         try:
             state_dict = torch.load(args.SAVE_PATH, map_location=torch.device('cpu'))
@@ -171,6 +125,7 @@ def robostacc(args, test_intervals, save_results=True, layers=["9"], result_file
             test_fn = TF.adjust_brightness
 
     def act_overll_metrics(mat):
+        # all the mapping functions we consider in this work
         mat = np.array(mat.data)
         flat_mat = mat.reshape(mat.shape[0], -1)
         m = np.mean(flat_mat, axis=1)
@@ -185,11 +140,15 @@ def robostacc(args, test_intervals, save_results=True, layers=["9"], result_file
         max_std = np.std(max_mat, axis=1)
         return [m, std, overall_max, overall_min, mean_max, mean_std, max_mean, max_std]
 
-    net = Net(pretrained=False)
+    if args.modelname == "vgg13bn":
+        net = Net(pretrained=False)
+    else:
+        net = SimpleNet()
+        print("Testing SimpleNet")
     net.eval()
     # net = net.cuda()
     load_model(args, net)
-    print("网络测试")
+    print("Testing networks")
     print(net)
     testGen = get_dataGen(args)
     nb_examples = len(testGen.dataset)
@@ -199,8 +158,6 @@ def robostacc(args, test_intervals, save_results=True, layers=["9"], result_file
         act_columns = ["idx", "label", "prediction", "f_idx", "mean", "std", "max", "min", "mean_max", "mean_std", "max_mean", "max_std", "angle"]
         act_matrix = np.zeros([len(test_intervals), nb_examples, len(layers), len(act_columns)])
     nb_batches = len(testGen)
-    # criterion = nn.CrossEntropyLoss()
-    # test_loss = 0.
     _correct, _total = 0, 0
     _cur = 0 # used only for data matrix
     for j, data in enumerate(testGen):
@@ -218,12 +175,14 @@ def robostacc(args, test_intervals, save_results=True, layers=["9"], result_file
         batch_dim = labels.size(0)
         correctness = torch.ones(batch_dim)
         correctness = correctness.to(device)
-        # running_loss = 0.
         for i in range(len(test_intervals)):
             imgs = test_fn(images, test_intervals[i])
             imgs = imgs.to(device) 
             if args.aug_type != "b":
-                imgs = TF.normalize(imgs, [0.5,0.5,0.5], [0.5,0.5,0.5])
+                if args.dbname == "mnist":
+                    imgs = TF.normalize(imgs, [0.5], [0.5])
+                else:
+                    imgs = TF.normalize(imgs, [0.5,0.5,0.5], [0.5,0.5,0.5])
             if save_results:
                 ins = net.inspect(imgs)
                 out = ins["Linear_0"]
@@ -233,13 +192,10 @@ def robostacc(args, test_intervals, save_results=True, layers=["9"], result_file
                 _, predictions = torch.max(out, axis=1)
             result = predictions == labels
             correctness *= result
-            # loss = criterion(out, labels)
-            # running_loss += loss.item()
             if save_results:
                 batch_data = np.array([range(_cur,_cur+batch_dim), labels.cpu().detach().numpy(), predictions.cpu().detach().numpy(), confidence.cpu().detach().numpy(), [test_intervals[i]]*batch_dim])
                 data_matrix[i][_cur:_cur+batch_dim] = batch_data.transpose(1, 0)
                 _actbatch = [range(_cur,_cur+batch_dim), labels.cpu().detach().numpy(), predictions.cpu().detach().numpy()]
-                # _actbatch = [range(_cur,_cur+batch_dim), list(labels.cpu().detach().numpy()), list(predictions.cpu().detach().numpy())]
                 f_idx = 0
                 for feature_name in net.feature_names:
                     # Only inspecct conv layers
@@ -251,10 +207,8 @@ def robostacc(args, test_intervals, save_results=True, layers=["9"], result_file
         _cur += batch_dim
         _correct += sum(correctness).item()
         _total += labels.size(0)
-        # test_loss += running_loss / len(test_intervals)
         print(f"Finished processing batch {j}/{nb_batches}")
     test_acc = _correct / _total
-    # test_loss /= len(testGen)
     if args.train:
         prefix = "train_"
         print("Training set:")
@@ -276,19 +230,23 @@ def robostacc(args, test_intervals, save_results=True, layers=["9"], result_file
 if __name__ == "__main__":
     args = argparser()
     print(args)
-    # plot_rotated_imgs(args, outdir="/Users/z.liao/oxfordXAI/repo/XAffine/plots/1515/ori", test_angles=[-15, 15])
     if args.aug_type == "r":
+        # targeted testing interval
         test_intervals=[-15, 15]
+        # name of the output .npy file
+        # (1) test_results1515.npy     -- CONF
+        # (2) test_actoverall1515.npy  -- CONV (the last two layers in this work)
         result_filename = "1515"
     else:
+        # targeted testing interval
         test_intervals=[0.7, 1.3]
+        # name of the output .npy file
+        # (1) test_results1515.npy     -- CONF
+        # (2) test_actoverall1515.npy  -- CONV (the last two layers in this work)
         result_filename = f"0515{args.aug_type}"
     if args.modelname ==  "vgg13bn":
         layers=["8", "9"]
     else:
-        layers=["0", "1"]
-    # for mid in range(1, 8+1):
-    #     update_mid(args, mid)
-    #     print(args)
-    #     robostacc(args, test_intervals=[-15,15], save_results=True, layers=["8", "9"], result_filename="1515")
-    robostacc(args, test_intervals, save_results=True, layers=layers, result_filename=result_filename)
+        layers=["1", "2"]
+    robostacc(args, test_intervals=[-15,15], save_results=True, layers=["8", "9"], result_filename="1515")
+   
