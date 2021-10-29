@@ -1,13 +1,13 @@
 General guideline to run the code:
 
-(1). Standard CNN training (train.py)
+### (1). Standard CNN training (train.py)
 
-    A series of CNNs on either MNIST or CIFAR or other databases should be trained in advance. We use the code train.py to train many CNNs using the metadata specify in metadata.txt (which will be released later on our website).
+A series of CNNs on either MNIST or CIFAR or other databases should be trained in advance. We use the code train.py to train many CNNs using the metadata specify in metadata.txt (which will be released later on our website).
     
-    After the CNNs are trained, we use model id (mid) to record them.
+After the CNNs are trained, we use model id (mid) to record them.
 
 
-(2). Model database (model.py)
+### (2). Model database (model.py)
 
     Our model database consists of 4 different partitions:
     
@@ -32,7 +32,7 @@ General guideline to run the code:
                Model 101 to 200, t101 to t150: preprocessing -- normalised to [0, 1], Others: [-0.5, 0.5]
 
 
-(3). Invariance testing data (save_invariance_results.py)
+### (3). Invariance testing data (save_invariance_results.py)
     For a given CNN, please run:
     ```
     python save_invariance_results.py --mid=mid --aug_type=r
@@ -45,7 +45,7 @@ General guideline to run the code:
     ```
 
 
-(4). Variance matrices (matrices_CONF.py and matrices_CONV.py)
+### (4). Variance matrices (matrices_CONF.py and matrices_CONV.py)
     To generate variance matrices (CONF):
     ```
     python matrices_CONF.py --mid=mid --aug_type=r
@@ -56,7 +56,7 @@ General guideline to run the code:
     ```
 
 
-(5). Measurements (measurements.py)
+### (5). Measurements (measurements.py)
     To generate a json file consisting of all measurements for the model:
     ```
     python measurements.py --mid=mid --aug_type=r
@@ -67,7 +67,7 @@ General guideline to run the code:
     ```
     
     
-(6). ML4ML assessors (ML4MLassessor.py)
+### (6). ML4ML assessors (ML4MLassessor.py)
     To train an ML4ML assessor with different types of ml algorithms. And test the performance of the assessor on the testing set of the model-database.
     ```
     python ML4MLassessor.py --aug_type=r
