@@ -35,7 +35,6 @@ class imbalanceSampler(Sampler):
         return self.nb_examples
         return (self.nb_examples + self.batch_size - 1) // self.batch_size
 
-
 class orderedSampler(Sampler):
     def __init__(self, data_source, batch_size, nb_classes=10, shuffle=True):
         self.data_source = data_source
