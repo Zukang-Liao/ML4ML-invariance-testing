@@ -1,3 +1,6 @@
+# For training CNN models
+# Output: a trained model (mid.pth) at args.SAVE_DIR
+
 import os
 import torch
 import torchvision
@@ -9,16 +12,13 @@ import torchvision.transforms as transforms
 import torchvision.transforms.functional as TF
 from torch.utils.data import Dataset, DataLoader, random_split
 from model import Net, SimpleNet
-# from torchsummary import summary
 from torch.utils.tensorboard import SummaryWriter
 import torch.backends.cudnn as cudnn
 from sampler import imbalanceSampler, orderedSampler
 
 
-MNIST_DIR = '/Users/z.liao/dataset/MNIST'
-CIFAR10_DIR = '/Users/z.liao/dataset/CIFAR10'
-# MNIST_DIR = 'dataset/MNIST'
-# CIFAR10_DIR = 'dataset/CIFAR10'
+MNIST_DIR = 'dataset/MNIST'
+CIFAR10_DIR = 'dataset/CIFAR10'
 classes = ['plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -32,34 +32,43 @@ def argparser():
     parser.add_argument("--lr", type=float, default=0.00001)
     parser.add_argument("--mid", type=str, default="-1") # model id
 
-    parser.add_argument("--SAVE_DIR", type=str, default="/Users/z.liao/oxfordXAI/repo/XAffine/saved_models/cifar")
-    parser.add_argument("--LOG_DIR", type=str, default="/Users/z.liao/oxfordXAI/repo/XAffine/saved_models/cifar/logs")
-    # parser.add_argument("--SAVE_DIR", type=str,default="saved_models/cifar")
-    # parser.add_argument("--LOG_DIR", type=str, default="saved_models/cifar/logs")
+    parser.add_argument("--SAVE_DIR", type=str,default="saved_models")
+    parser.add_argument("--dbname", type=str, default="cifar")
 
-    parser.add_argument("--safe_mode", type=bool, default=True)
-    # max_aug=0.2 means x1.2 or x0.8 for scaling
+    # max_aug=0.2 means x1.2 or x0.8 for scaling and brightness
     parser.add_argument("--max_aug", type=float, default=15)
-    parser.add_argument("--aug_type", type=str, default="r")
+    # model "r" (rotation), "b" (brightness) or "s" (scaling)
+    parser.add_argument("--aug_type", type=str, default="r") 
     parser.add_argument("--seed", type=int, default=2)
+
     # Params for anomalies
+    # propotion of data used for training
     parser.add_argument("--r", type=float, default=1.0)
     parser.add_argument("--target_class", type=str, default="None")
     parser.add_argument("--noise", type=float, default=0.0)
     parser.add_argument("--epsilon", type=float, default=0.0)
 
+    # vgg13bn or simple for CNN5
     parser.add_argument("--modelname", type=str, default="vgg13bn")
     parser.add_argument("--adv", type=bool, default=False)
     parser.add_argument("--anomaly", type=str, default="None")
     parser.add_argument("--comment", type=str, default="")
 
     args = parser.parse_args()
+    args.SAVE_DIR = os.path.join(args.SAVE_DIR, args.dbname)
     args.SAVE_PATH = os.path.join(args.SAVE_DIR, f"{args.mid}.pth")
+    args.LOG_DIR = os.path.join(args.SAVE_DIR, "logs")
+    args.LOG_PATH = os.path.join(args.LOG_DIR, str(args.mid))
+    if not os.path.exists(args.SAVE_DIR):
+        os.makedirs(args.SAVE_DIR)
     args.comment = args.comment.replace(" ", "_")
+    # e.g., 15r, 0.3b, 0.1s
     args.aug = f"{args.max_aug}{args.aug_type}"
     if args.aug_type == "r":
         args.aug = f"{int(args.max_aug)}{args.aug_type}"
-    args.LOG_PATH = os.path.join(args.LOG_DIR, str(args.mid))
+    if args.dbname == "mnist":
+        print("Training MNIST")
+        args.modelname = "simple"
     return args
 
 
@@ -69,7 +78,7 @@ def verify_args(args):
         "1": ordered batch (do not shuffle after each epoch)
         "2": noisy data -- include purely random noise as images in training
         "3": imbalanced data -- remove part of examples of a targeted class
-        "4": ordered training -- feed CNNs with examples of class 1 and then class 2 in order.
+        "4": ordered training -- feed CNNs with examples of class 1 and then class 2 in order (Not in use in this work)
         "5": impaired data -- train CNNs with only a small portion of training set.
         "6": impaired augmentation -- remove some degrees from augmentation (e.g. do not augment the image with 5 degrees) 
         "7": impaired labels -- wrong labels
@@ -119,36 +128,46 @@ class AnomalyRotation:
             return TF.adjust_brightness(x, bv)
 
 
-def get_transform(train=True, max_aug=0, aug_type="r", anomaly="None"):
-    # transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)) maps images [0, 1] to matrices [-1, 1]
+def get_transform(args, train=True):
     if train:
-        if aug_type == "r":
+        if args.aug_type == "r":
             # rotation
-            _transform = AnomalyRotation(max_aug, aug_type) if anomaly=="6" else transforms.RandomRotation(max_aug)
-        elif aug_type == "s":
+            _transform = AnomalyRotation(args.max_aug, args.aug_type) if args.anomaly=="6" else transforms.RandomRotation(args.max_aug)
+        elif args.aug_type == "s":
             # scaling
-            _transform = AnomalyRotation(max_aug, aug_type) if anomaly=="6" else transforms.RandomAffine(degrees=0, scale=(1-max_aug, 1+max_aug))
-        elif aug_type == "b":
+            _transform = AnomalyRotation(args.max_aug, args.aug_type) if args.anomaly=="6" else transforms.RandomAffine(degrees=0, scale=(1-args.max_aug, 1+args.max_aug))
+        elif args.aug_type == "b":
             # brightness
-            _transform = AnomalyRotation(max_aug, aug_type) if anomaly=="6" else transforms.ColorJitter(brightness=max_aug)
+            _transform = AnomalyRotation(args.max_aug, args.aug_type) if args.anomaly=="6" else transforms.ColorJitter(brightness=args.max_aug)
             transform = transforms.Compose([transforms.ToTensor(), _transform])
             return transform
-        transform = transforms.Compose([
-            # you can add other transformations in this list
-            transforms.ToTensor(),
-            _transform,
-            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-        ])
+        if args.dbname != "mnist":
+            transform = transforms.Compose([
+                transforms.ToTensor(),
+                _transform,
+                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+            ])
+        else:
+            transform = transforms.Compose([
+                transforms.ToTensor(),
+                _transform,
+                transforms.Normalize((0.5), (0.5))
+            ])
     else:
-        if aug_type == "b":
+        if args.aug_type == "b":
             # no normalise for brightness
             return transforms.Compose([transforms.ToTensor()])
         else:
-            transform = transforms.Compose([
-                # you can add other transformations in this list
-                transforms.ToTensor(),
-                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-            ])
+            if args.dbname != "mnist":
+                transform = transforms.Compose([
+                    transforms.ToTensor(),
+                    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+                ])
+            else:
+                transform = transforms.Compose([
+                    transforms.ToTensor(),
+                    transforms.Normalize((0.5), (0.5))
+                ])
     return transform
 
 
@@ -188,11 +207,17 @@ class LeakyDataset(Dataset):
 
 
 def get_dataGen(args, train):
-    transform = get_transform(train=train, max_aug=args.max_aug, aug_type=args.aug_type, anomaly=args.anomaly) # have to convert PIL objects to tensors
-    data = torchvision.datasets.CIFAR10(CIFAR10_DIR, train=train, transform=transform, download=True)
+    transform = get_transform(train=train, args=args)
+    if args.dbname == "cifar":
+        data = torchvision.datasets.CIFAR10(CIFAR10_DIR, train=train, transform=transform, download=True)
+    elif args.dbname == "mnist":
+        data = torchvision.datasets.MNIST(MNIST_DIR, train=train, transform=transform, download=True)
     if train:
         if args.anomaly == "8":
-            testdata = torchvision.datasets.CIFAR10(CIFAR10_DIR, train=False, transform=transform, download=True)
+            if args.dbname == "cifar":
+                testdata = torchvision.datasets.CIFAR10(CIFAR10_DIR, train=False, transform=transform, download=True)
+            elif args.dbname == "mnist":
+                testdata = torchvision.datasets.MNIST(MNIST_DIR, train=False, transform=transform, download=True)
             data = LeakyDataset(data, testdata, args.r, args.seed)
         if args.anomaly == "2" or args.anomaly == "7":
             data = NoisyDataset(data, args.noise, args.anomaly)
@@ -220,32 +245,6 @@ def get_dataGen(args, train):
     return dataGen
 
 
-# def get_dataGen(args, train=True):
-#     transform = get_transform(train=True) # have to convert PIL objects to tensors
-#     test_transform = get_transform(train=False)
-#     trainData = torchvision.datasets.MNIST(MNIST_DIR, train=True, download=True)
-#     testData = torchvision.datasets.MNIST(MNIST_DIR, train=False, download=True)
-#     trainData = torchvision.datasets.CIFAR10(CIFAR10_DIR, train=True, transform=transform, download=True)
-#     valData = torchvision.datasets.CIFAR10(CIFAR10_DIR, train=True, transform=test_transform, download=True)
-#     # labels index start from 0
-#     testData = torchvision.datasets.CIFAR10(CIFAR10_DIR, train=False, transform=test_transform, download=True)
-#     nb_train_ex = int(0.8*len(trainData))
-#     nb_val_ex = len(trainData) - nb_train_ex
-#     gen = torch.Generator().manual_seed(42)
-#     trainData, _ = random_split(trainData, [nb_train_ex, nb_val_ex], generator=gen)
-#     _, valData = random_split(valData, [nb_train_ex, nb_val_ex], generator=gen)
-#     trainGen = DataLoader(trainData, batch_size=args.batch_size, shuffle=True, num_workers=args.nThreads)
-#     valGen = DataLoader(valData, batch_size=args.batch_size, shuffle=False, num_workers=args.nThreads)
-#     testGen = DataLoader(testData, batch_size=args.batch_size, shuffle=False, num_workers=args.nThreads)
-#     return trainGen, valGen, testGen
-
-
-def my_optimiser(net, learning_rate=0.01, learning_rate_multi=1):
-    for l in net.parameters():
-        l.data.sub_(l.grad.data * learning_rate)
-        learning_rate *= learning_rate_multi # easily control learning rate for every layer
-
-
 # FGSM attack code
 def fgsm_attack(args, image, epsilon, data_grad):
     # Collect the element-wise sign of the data gradient
@@ -267,8 +266,13 @@ def train(args):
     testGen = get_dataGen(args, train=False)
     if args.modelname == "vgg13bn":
         net = Net(args.pretrain)
+        print("Training VGG13bn")
+    elif args.modelname == "vgg11":
+        net = myVGG11(args.pretrain)
+        print("Training VGG11bn")
     else:
         net = SimpleNet()
+        print("Training SimpleNet")
     if torch.cuda.device_count() > 1:
         print("DEVICE IS CUDA")
         net = torch.nn.DataParallel(net, device_ids=[0, 1, 2, 3])
@@ -286,7 +290,7 @@ def train(args):
             images, labels = images.to(device), labels.to(device)
             if args.adv:
                 images.requires_grad = True
-            optimiser.zero_grad() # the same as net.zero_grad()?
+            optimiser.zero_grad()
             out = net(images)
             loss = criterion(out, labels)
             loss.backward()
@@ -320,42 +324,14 @@ def train(args):
             test_loss /= len(testGen)
             test_loss_trace.append(test_loss)
             print("Epoch: %d, test_loss:%.3f, test_acc:%.3f" % (e+1, test_loss, test_acc))
-            # if test_loss_trace[-1] == min(test_loss_trace):
         writer.add_scalar('TestLoss', test_loss, e)
         writer.add_scalar('TestAcc', test_acc, e)
+        if args.keep_steps and e+1 in args.steps:
+            torch.save(net.state_dict(), os.path.join(args.SAVE_DIR, f"{args.mid}_{e+1}.pth"))
+    if not args.keep_steps:
         torch.save(net.state_dict(), args.SAVE_PATH) # grad won't be saved
     log_model(args, test_acc)
     
-
-def test(args, log_result=False):
-    with torch.no_grad():
-        net = Net(pretrained=False)
-        if torch.cuda.device_count() > 1:
-            net = torch.nn.DataParallel(net, device_ids=[0, 1, 2, 3])
-            cudnn.benchmark = True
-            net = net.to(device)
-        net.eval()
-        net.load_state_dict(torch.load(args.SAVE_PATH))
-        testGen = get_dataGen(args, train=False)
-        criterion = nn.CrossEntropyLoss()
-        test_loss = 0.
-        _correct, _total = 0, 0
-        for i, data in enumerate(testGen):
-            images, labels = data
-            images, labels = images.to(device), labels.to(device)
-            out = net(images)
-            _, predictions = torch.max(out, axis=1)
-            _correct += sum(predictions == labels).item()
-            _total += labels.size(0)
-            loss = criterion(out, labels)
-            test_loss += loss.item()
-        test_acc = _correct / _total
-        test_loss /= len(testGen)
-        print("Test_loss: %.3f, test_acc: %.3f" % (test_loss, test_acc))
-    if log_result:
-        log_model(args, test_acc)
-    return test_acc
-
 
 def log_model(args, test_acc):
     if args.target_class is not "None":
@@ -365,23 +341,14 @@ def log_model(args, test_acc):
     if args.epsilon > 0:
         args.comment += f"epsilon: {args.epsilon}"
     with open(os.path.join(args.SAVE_DIR, "model_label.txt"), "a") as f:
-        # path aug testacc pretrain epoch lr model adv anomaly comment
-        f.write(f"{args.mid}.pth {args.aug} {test_acc:.3f} {args.pretrain} {args.epoch} {args.batch_size} {args.lr} {args.modelname} {args.adv} {args.anomaly} {args.r} \"{args.comment}\"\n")
+        # path augmentation_info testacc pretrain epoch lr modelname adv_trained anomaly comment
+        if args.modelname != "simple":
+            f.write(f"{args.mid}.pth {args.aug} {test_acc:.3f} {args.pretrain} {args.epoch} {args.batch_size} {args.lr} {args.modelname} {args.adv} {args.anomaly} {args.r} \"{args.comment}\"\n")
+        else:
+            f.write(f"{args.mid}.pth {args.aug} {test_acc:.3f} NA {args.epoch} {args.batch_size} {args.lr} {args.modelname} {args.adv} {args.anomaly} {args.r} \"{args.comment}\"\n")
 
 
 if __name__ == "__main__":
     args = argparser()
     verify_args(args)
-    # import matplotlib.pyplot as plt
-    # plt.imshow(torchvision.utils.make_grid(images[:4]).permute(1,2,0))
-    # plt.show()
-    # import ipdb; ipdb.set_trace()
-    # test(args, log_result=False)
     train(args)
-    # try:
-    #     train(args)
-    #     # test(args)
-    # except:
-    #     print("Check Training or Testing")
-    #     if not args.safe_mode:
-    #         os.system(f"rm {args.SAVE_PATH}")
