@@ -1,5 +1,6 @@
 # ML4ML: automated invariance testing for machine leanring models
-https://arxiv.org/abs/2109.12926
+Paper: https://arxiv.org/abs/2109.12926
+
 General guideline to run the code:
 
 ### (1). Standard CNN training (train.py)
