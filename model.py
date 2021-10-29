@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision import models
+from torchsummary import summary
 
 class Net(nn.Module):
     def __init__(self, pretrained=False):
@@ -61,26 +62,27 @@ class Net(nn.Module):
 class SimpleNet(nn.Module):
     def __init__(self):
         super(SimpleNet, self).__init__()
-        self.conv1 = nn.Conv2d(3, 6, 5)
+        self.conv1 = nn.Conv2d(1, 6, 5)
         self.pool = nn.MaxPool2d(2, 2)
         self.conv2 = nn.Conv2d(6, 16, 5)
-        self.fc1 = nn.Linear(16 * 5 * 5, 120)
-        self.fc2 = nn.Linear(120, 84)
-        self.fc3 = nn.Linear(84, 10)
+        self.conv3 = nn.Conv2d(16, 32, 3)
+        self.fc1 = nn.Linear(128, 64)
+        self.fc2 = nn.Linear(64, 10)
+        self.dropout = nn.Dropout(p=0.5)
+        self.dropout1 = nn.Dropout(p=0.25)
         self.get_feature_names()
 
     def forward(self, x):
-        x = self.pool(F.relu(self.conv1(x)))
-        x = self.pool(F.relu(self.conv2(x)))
-        # x = x.view(-1, 16 * 5 * 5)
+        x = self.pool(F.relu(self.dropout1(self.conv1(x))))
+        x = self.pool(F.relu(self.dropout1(self.conv2(x))))
+        x = F.relu(self.dropout1(self.conv3(x)))
         x = torch.flatten(x, 1)
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        x = self.fc3(x)
+        x = F.relu(self.dropout1(self.fc1(x)))
+        x = self.fc2(x)
         return x
 
     def get_feature_names(self):
-        self.feature_names = ["Conv2d_0", "Conv2d_1", "Linear_2", "Linear_1", "Linear_0"]
+        self.feature_names = ["Conv2d_0", "Conv2d_1", "Conv2d_2", "Linear_1", "Linear_0"]
 
     def get_nb_conv(self):
         return 2
@@ -90,11 +92,9 @@ class SimpleNet(nn.Module):
         batch_size = x.size(0)
         results["Conv2d_0"] = self.conv1(x)
         results["Conv2d_1"] = self.conv2(self.pool(F.relu(results["Conv2d_0"])))
-        x = torch.flatten(self.pool(F.relu(results["Conv2d_1"])), 1)
-        results["Linear_2"] = F.relu(self.fc1(x))
-        results["Linear_1"] = F.relu(self.fc2(results["Linear_2"]))
-        results["Linear_0"] = self.fc3(results["Linear_1"])
+        results["Conv2d_2"] = self.conv3(self.pool(F.relu(results["Conv2d_1"])))
+        x = torch.flatten(F.relu(results["Conv2d_2"]), 1)
+        results["Linear_1"] = F.relu(self.fc1(x))
+        results["Linear_0"] = self.fc2(results["Linear_1"])
         return results
-
-
-
+        
