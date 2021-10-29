@@ -51,9 +51,7 @@ To generate variance matrices (CONV):
     python matrices_CONV.py --mid=mid --aug_type=r
 
 - Example at CONF level
-
-  ![img](example_mid_73/1515/Confidence/xconfidencel2_disttest.jpg){:height="50%" width="50%"}
-
+<img src="example_mid_73/1515/Confidence/xconfidencel2_disttest.jpg" width="200" />
 
 
 
