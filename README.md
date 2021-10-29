@@ -8,7 +8,7 @@ General guideline to run the code:
 
 ### (1). Standard CNN training (train.py)
 
-A series of CNNs on either MNIST or CIFAR or other databases should be trained in advance. We use the code train.py to train many CNNs using the metadata specify in metadata.txt (which will be released later on our website).
+A series of CNNs on either MNIST or CIFAR or other databases should be trained in advance. We use the code train.py to train many CNNs using the metadata specify in metadata.txt.
     
 After the CNNs are trained, we use model id (mid) to record them.
 
