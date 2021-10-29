@@ -20,21 +20,46 @@ General guideline to run the code:
 
 
 (3). Invariance testing data (save_invariance_results.py)
-    For a given CNN, please run: "python save_invariance_results.py --mid=mid --aug_type=r" where mid is the index of the CNN and aug_type: "r" for "rotation", "s" for "scaling" and "b" for "brightness".
+    For a given CNN, please run:
+    ```
+    python save_invariance_results.py --mid=mid --aug_type=r
+    ```
+    where mid is the index of the CNN and aug_type: "r" for "rotation", "s" for "scaling" and "b" for "brightness".
     The script will generate two .npy files, namely test_results1515.npy (CONF) and test_actoverall1515.npy (CONV).
-    For partition (d), please specify --dbname="mnist".
+    For partition (d), please specify --dbname=mnist:
+    ```
+    python save_invariance_results.py --mid=mid --aug_type=r --dbname=mnist
+    ```
 
 
 (4). Variance matrices (matrices_CONF.py and matrices_CONV.py)
-    Run "python matrices_CONF.py --mid=mid --aug_type=r" to generate variance matrices (CONF).
-    Run "python matrices_CONV.py --mid=mid --aug_type=r" to generate variance matrices (CONV).
+    To generate variance matrices (CONF):
+    ```
+    python matrices_CONF.py --mid=mid --aug_type=r
+    ```
+    To generate variance matrices (CONV):
+    ```
+    python matrices_CONV.py --mid=mid --aug_type=r
+    ```
 
 
 (5). Measurements (measurements.py)
-    Run "python measurements.py --mid=mid --aug_type=r" to generate a json file consisting of all measurements for the model.
-    For partition (d), please specify --dbname="mnist".
+    To generate a json file consisting of all measurements for the model:
+    ```
+    python measurements.py --mid=mid --aug_type=r
+    ```
+    For partition (d), please specify --dbname="mnist":
+    ```
+    python measurements.py --mid=mid --aug_type=r --dbname="mnist"
+    ```
     
-
+    
 (6). ML4ML assessors (ML4MLassessor.py)
-    Run "python ML4MLassessor.py --aug_type=r" to train an ML4ML assessor with different types of ml algorithms. And test the performance of the assessor on the testing set of the model-database.
-    For partition (d), please specify --dbname="mnist".
+    To train an ML4ML assessor with different types of ml algorithms. And test the performance of the assessor on the testing set of the model-database.
+    ```
+    python ML4MLassessor.py --aug_type=r
+    ```
+    For partition (d), please specify --dbname=mnist:
+    ```
+    python ML4MLassessor.py --aug_type=r --dbname=mnist
+    ```
