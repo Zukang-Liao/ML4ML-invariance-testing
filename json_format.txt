@@ -1,0 +1,100 @@
+{
+	"train_info":
+	{
+		"mid": int
+		"aug": str
+		"pretrain": bool
+		"epoch": int
+		"lr": float
+		"modelname": str
+		"advtrained": bool
+		"anamaly": bool
+		"ratio": float
+	}
+	"test_angles": list # [-15, 15]
+	"test_info":
+	{
+		'overall':
+		{
+			'robustacc': list # [-1515, -1414, ..., -22, -11, 0](not used in training)
+			'testacc': list # [-15, -14, ... 15](not used in training)
+			'confidence':
+			{
+				'corrcoef': the same as l2_dist
+				'cos_dist': the same as l2_dist
+				'l2_dist':
+				{
+					'sstv': {"all": list, "corr": list} # [0.9]
+					'discnty': {"all": list, "corr": list} # [-1515]
+					'asymm': {"all": list, "corr": list}
+					'mean': {"all": list, "corr": list}
+					's_mean': {"all": list, "corr": list} # square mean
+					'std': {"all": list, "corr": list}
+					'robusterror': {"all": list, "corr": list}
+					'grad_overall': {"all": list, "corr": list}
+					'grad':
+					{
+						'v':
+						{
+							'mean': {"all": list, "corr": list}
+							'std': {"all": list, "corr": list}
+							'wstd': {"all": list, "corr": list}
+						}
+						'h':
+						{
+							'mean': {"all": list, "corr": list}
+							'std': {"all": list, "corr": list}
+							'wstd': {"all": list, "corr": list}
+						}
+						'd':
+						{
+							'mean': {"all": list, "corr": list}
+							'std': {"all": list, "corr": list}
+						}
+					}
+				}
+			}
+			'conv8': the same as conv9
+			'conv9':
+			{
+				'max_mean': the same as max_std
+				'max_std':
+				{
+					'corrcoef': the same as l2_dist
+					'cos_dist': the same as l2_dist
+					'l2_dist':
+					{
+						'sstv': {"all": list, "corr": list}
+						'discnty': {"all": list, "corr": list}
+						'asymm': {"all": list, "corr": list}
+						'mean': {"all": list, "corr": list}
+						's_mean': {"all": list, "corr": list} # square mean
+						'std': {"all": list, "corr": list}
+						'robusterror': {"all": list, "corr": list}
+						'grad_overall': {"all": list, "corr": list}
+						'grad':
+						{
+							'v':
+							{
+								'mean': {"all": list, "corr": list}
+								'std': {"all": list, "corr": list}
+								'wstd': {"all": list, "corr": list}
+							}
+							'h':
+							{
+								'mean': {"all": list, "corr": list}
+								'std': {"all": list, "corr": list}
+								'wstd': {"all": list, "corr": list}
+							}
+							'd':
+							{
+								'mean': {"all": list, "corr": list}
+								'std': {"all": list, "corr": list}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
