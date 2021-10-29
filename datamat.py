@@ -93,7 +93,6 @@ def load_actoverall(args, class_id=None, test_intervals=None):
     else:
         return data[:, :, :, 3:-1], test_intervals
 
-
 def get_metrics(mat):
     mat = mat.reshape(mat.shape[0], -1)
     m = np.mean(mat, axis=1)
