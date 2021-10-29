@@ -50,6 +50,11 @@ To generate variance matrices (CONV):
 
     python matrices_CONV.py --mid=mid --aug_type=r
 
+- Example at CONF level
+
+  ![img](example_mid_73/1515/Confidence/xconfidence l2_dist test.jpg)
+
+
 
 
 ### (5). Measurements (measurements.py)
