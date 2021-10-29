@@ -52,7 +52,7 @@ To generate variance matrices (CONV):
 
 - Example at CONF level
 
-  ![img](example_mid_73/1515/Confidence/xconfidencel2_disttest.jpg)
+  ![img](example_mid_73/1515/Confidence/xconfidencel2_disttest.jpg | width=100)
 
 
 
