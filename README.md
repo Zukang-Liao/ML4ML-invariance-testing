@@ -9,13 +9,11 @@ After the CNNs are trained, we use model id (mid) to record them.
 
 ### (2). Model database (model.py)
 
-    Our model database consists of 4 different partitions:
+Our model database consists of 4 different partitions:
     
-	    partition (a): mid: 1-100, t1-t50. VGG13bn trained on CIFAR for rotation testing.
-	    
-	    partition (b): mid: 101-200, t101-t150. VGG13bn trained on CIFAR for brightness testing.
-	    
-	    partition (c): mid: 201-300, t201-t250. VGG13bn trained on CIFAR for scaling testing.
+- partition (a): mid: 1-100, t1-t50. VGG13bn trained on CIFAR for rotation testing.
+- partition (b): mid: 101-200, t101-t150. VGG13bn trained on CIFAR for brightness testing.
+- partition (c): mid: 201-300, t201-t250. VGG13bn trained on CIFAR for scaling testing.
 	    
 	    partition (d): mid: 301-400, t301-t350. CNN5 trained on MNIST for rotation testing.
 	    
