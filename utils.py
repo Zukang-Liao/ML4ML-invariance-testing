@@ -1,85 +1,9 @@
+# Tool functions, e.g.,
+#   (1) the one used for generating the variance matrices
+#   (2) asymmetry & discontinuity calculation
+ 
 import numpy as np
-import os
-import argparse
-import torchvision
-import torchvision.transforms.functional as TF
-import matplotlib.pyplot as plt
 from sklearn.metrics.pairwise import cosine_distances, euclidean_distances
-
-CIFAR10_DIR = '/Users/z.liao/dataset/CIFAR10'
-
-
-def get_even_array(a_min, a_max, nb_elements):
-    assert nb_elements >=2, "Number of elements must be greater than 1"
-    result = np.zeros(nb_elements)
-    total = a_max - a_min
-    increment = total/(nb_elements-1)
-    for i in range(nb_elements):
-        result[i] = a_min + i * increment
-    return result
-
-def argparser():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--data_path", type=str, default="/Users/z.liao/oxfordXAI/repo/XAffine/plots/test_results.npy")
-    parser.add_argument("--data_path1", type=str, default="/Users/z.liao/oxfordXAI/repo/XAffine/plots/test_results_45_15.npy")
-    parser.add_argument("--data_path2", type=str, default="/Users/z.liao/oxfordXAI/repo/XAffine/plots/test_results.npy")
-    parser.add_argument("--data_path3", type=str, default="/Users/z.liao/oxfordXAI/repo/XAffine/plots/test_results_15_45.npy")
-    parser.add_argument("--out_path", type=str, default="/Users/z.liao/oxfordXAI/repo/XAffine/plots/test_results_45_45.npy")
-    parser.add_argument("--plot_foldername", type=str, default="1515")
-    args = parser.parse_args()
-    args.plot_dir = os.path.join(os.path.dirname(args.data_path), args.plot_foldername, "ori")
-    return args
-
-def merge_saved_results(args):
-    data1 = np.load(args.data_path1, mmap_mode="r")
-    data2 = np.load(args.data_path2, mmap_mode="r")
-    data3 = np.load(args.data_path3, mmap_mode="r")
-    data = np.concatenate([data1, data2, data3], axis=0)
-    np.save(args.out_path, data)
-
-def svd(incorr_f, corr_f):
-    incorr_f, incorr_m = preprocess(incorr_f)
-    corr_f, corr_m = preprocess(corr_f)
-    incorr_U, incorr_s, incorr_V = np.linalg.svd(incorr_f, full_matrices=False)
-    corr_U, corr_s, corr_V = np.linalg.svd(corr_f, full_matrices=False)
-    results = [[incorr_U, incorr_s, incorr_V, incorr_m], [corr_U, corr_s, corr_V, corr_m]]
-    return results
-
-def verify_paths(args):
-    if args.train:
-        assert "train" in args.data_filename, "result path not for training set"
-    else:
-        assert "test" in args.data_filename, "result path not for testing set"
-
-def verify_rotation(args, img, test_angles):
-
-    def plot_mat(mat, title, plot_name):
-        plt.pcolormesh(mat)
-        plt.title(title)
-        plt.colorbar()
-        plt.savefig(os.path.join(args.plot_dir, plot_name))
-        plt.clf()
-        plt.close()
-
-    nb_angles = len(test_angles)
-    imgs = np.zeros((nb_angles,) + np.array(img).shape)
-    results = np.zeros([nb_angles, nb_angles])
-    zeros_map = np.zeros([nb_angles, nb_angles])
-    for i, angle in enumerate(test_angles):
-        imgs[i] = np.array(TF.rotate(img, angle))
-    for i in range(nb_angles-1):
-        zeros_map[i, i] = 10
-        for j in range(i+1, nb_angles):
-            pixel_diff = np.mean(np.abs(np.subtract(imgs[i], imgs[j])))
-            results[i, j] = pixel_diff
-            results[j, i] = pixel_diff
-            if pixel_diff == 0:
-                zeros_map[i, j] = 10
-                zeros_map[j, i] = 10
-    if not os.path.exists(args.plot_dir):
-        os.makedirs(args.plot_dir)
-    plot_mat(results, "Rotation verification: pixel value difference", "rotation_verification.jpg")
-    plot_mat(zeros_map, "Rotation verification: 10: the same picture", "rotation_verification_zeromap.jpg")
 
 
 def get_relations(mat, l2_norm=True, flip_y=True):
@@ -98,6 +22,7 @@ def get_relations(mat, l2_norm=True, flip_y=True):
         l2_dists = np.flip(l2_dists, axis=1)
     return corrcoefs, cos_dists, l2_dists
 
+
 def merge_relations(relations, nb_angles):
     gap = 2
     h, w = nb_angles + 2 * gap, nb_angles * 2 + 3 * gap
@@ -106,6 +31,7 @@ def merge_relations(relations, nb_angles):
         for i, r in enumerate(relation):
             result[j][gap:gap+nb_angles, (i+1)*gap+i*nb_angles:(i+1)*(gap+nb_angles)] = r
     return result
+
 
 # This method works only for CIFAR dataset with 32,32 dim --> -1, 0, 1 degree rotations are the same
 def fillin_relation_diagonal(mat, flip_y=True):
@@ -136,6 +62,7 @@ def fillin_relation_diagonal(mat, flip_y=True):
                 # row[i] = (row[i-1]+mat[i+1, i]+mat[i+1, i-1]) / 3
     return mat
 
+
 def get_continuity(imgs, flip_y=True):
     def get_diagonal_std(img, i, forward):
     # return the i-th "diagonal" std starting from the i-th row
@@ -162,6 +89,7 @@ def get_continuity(imgs, flip_y=True):
         # results.append(np.mean(d_std))
         results.append(np.sum(d_std)/m)
     return results
+
 
 def get_asymmetry(imgs, flip_y=True):
     # Symmetric about the second diagonal
@@ -201,7 +129,6 @@ def log_asymm_ctny(txt_path, train, metric_name, ctny, asymm, grad_scs, class_id
         txt_begin += f"\nIncorrect examples: {nb_examples[0]}, Correct examples:{nb_examples[1]}\n"
     txt_begin += "---------------------------------------------------\n"
 
-
     with open(txt_path, "a") as txtfile:
         txtfile.write(txt_begin)
         if len(ctny) == 1:
@@ -229,10 +156,8 @@ def log_asymm_ctny(txt_path, train, metric_name, ctny, asymm, grad_scs, class_id
             txtfile.write("\n\n")
 
 
-if __name__ == "__main__":
-    args = argparser()
-    print(args)
-    data = torchvision.datasets.CIFAR10(CIFAR10_DIR, train=False, download=True)
-    img, label = data[0]
-    verify_rotation(args, img, test_angles=list(range(-15,15+1)))
-    # merge_saved_results(args)
+def verify_paths(args):
+    if args.train:
+        assert "train" in args.data_filename, "result path not for training set"
+    else:
+        assert "test" in args.data_filename, "result path not for testing set"
