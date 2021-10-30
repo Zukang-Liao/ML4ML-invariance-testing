@@ -72,10 +72,12 @@ For partition (d), please specify --dbname=mnist:
 ### (6). ML4ML assessors (ML4MLassessor.py)
 To train an ML4ML assessor with different types of ml algorithms. And test the performance of the assessor on the testing set of the model-database.
 
-    python ML4MLassessor.py --aug_type=r
+    python ML4MLassessor.py --aug_type=r --dataset=1
  
     
 For partition (d), please specify --dbname=mnist:
 
-    python ML4MLassessor.py --aug_type=r --dbname=mnist
+    python ML4MLassessor.py --aug_type=r --dbname=mnist --dataset=1
+    
+Specify --dataset=1 for the first time runing the script.
 
