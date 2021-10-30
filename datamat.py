@@ -4,8 +4,6 @@
 
 import os
 import numpy as np
-from utils import get_even_array
-from sampler import get_corr_idx, equal_split_func
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -77,7 +75,7 @@ def load_actoverall(args, class_id=None, test_intervals=None):
         try:
             idx0 = np.where(test_intervals==args.intv_centre)[0][0]
         except:
-            idx0 = np.where(get_even_array(a_min=-15, a_max=15, nb_elements=30+1)==0)[0][0]
+            idx0 = np.where(np.linspace(-15, 15, args.nb_intervals)==0)[0][0]
         incorrect_idx = np.where(data[idx0,:,0,1] != data[idx0,:,0,2])[0]
         correct_idx = np.where(data[idx0,:,0,1] == data[idx0,:,0,2])[0]
         if args.equal_split:
@@ -92,6 +90,7 @@ def load_actoverall(args, class_id=None, test_intervals=None):
         return incorr_confidence, corr_confidence, test_intervals
     else:
         return data[:, :, :, 3:-1], test_intervals
+
 
 def get_metrics(mat):
     mat = mat.reshape(mat.shape[0], -1)
