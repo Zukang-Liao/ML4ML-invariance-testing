@@ -514,5 +514,5 @@ if __name__ == "__main__":
     else:
         test_intervals=[0.7, 1.3]
         args.intv_centre = 1
-    print(f"processing model {mid}")
+    print(f"processing model {args.mid}")
     write_json(args, test_intervals=test_intervals)
