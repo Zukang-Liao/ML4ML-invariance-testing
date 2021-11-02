@@ -79,5 +79,6 @@ For partition (d), please specify --dbname=mnist:
 
     python ML4MLassessor.py --aug_type=r --dbname=mnist --dataset=1
     
-Specify --dataset=1 for the first time runing the script.
+Specify --dataset=1 for the first time runing the script. 
+If the dataset.csv file already exists (which can be downloaded from the metadata link above), then please do not set any value to --dataset
 
