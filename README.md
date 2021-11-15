@@ -8,19 +8,16 @@ General guideline to run the code:
 
 ### (1). Standard CNN training (train.py)
 
-A series of CNNs on either MNIST or CIFAR or other databases should be trained in advance. We use the code train.py to train many CNNs using the metadata specify in metadata.txt.
-    
-After the CNNs are trained, we use model id (mid) to record them.
-
+Mutiple CNNs on either MNIST or CIFAR or other databases should be trained in advance. We use the code train.py to train many CNNs using the metadata specified in the metadata.txt file.
 
 
 ### (2). Model database (model.py)
 
 Our model database consists of 4 different partitions:
-- partition (a): mid: 1-100, t1-t50. VGG13bn trained on CIFAR for rotation testing.
-- partition (b): mid: 101-200, t101-t150. VGG13bn trained on CIFAR for brightness testing.
-- partition (c): mid: 201-300, t201-t250. VGG13bn trained on CIFAR for scaling testing.
-- partition (d): mid: 301-400, t301-t350. CNN5 trained on MNIST for rotation testing.
+- partition (a): mid: 1-100, t1-t50. VGG13bn trained on CIFAR for rotation invariance testing.
+- partition (b): mid: 101-200, t101-t150. VGG13bn trained on CIFAR for brightness invariance testing.
+- partition (c): mid: 201-300, t201-t250. VGG13bn trained on CIFAR for scaling invariance testing.
+- partition (d): mid: 301-400, t301-t350. CNN5 trained on MNIST for rotation invariance testing.
 	    
 Mid starting with "t" is a hold-out set. When using three-fold cross validation, the hold-out set is always treated as one fold, while the rest 100 "regular" models are randomly split into two folds.
 
@@ -34,7 +31,7 @@ For a given CNN (named "mid.pth" - mid short for model id, e.g., "1.pth"), pleas
     python save_invariance_results.py --mid=1 --aug_type=r
 
     
-where mid is the index of the CNN and aug_type: "r" for "rotation", "s" for "scaling" and "b" for "brightness". The script will generate two .npy files, namely test_results1515.npy (CONF) and test_actoverall1515.npy (CONV).
+where mid is the index of the CNN and aug_type: "r" for "rotation", "s" for "scaling" and "b" for "brightness". The script generates two .npy files, namely test_results1515.npy (CONF) and test_actoverall1515.npy (CONV).
     
 For partition (d), please specify --dbname=mnist:
 
