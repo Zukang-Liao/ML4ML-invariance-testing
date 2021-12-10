@@ -18,8 +18,10 @@ import matplotlib.pyplot as plt
 from torchsummary import summary
 import collections
 
-MNIST_DIR = 'dataset/MNIST'
-CIFAR10_DIR = 'dataset/CIFAR10'
+MNIST_DIR = './dataset/MNIST'
+CIFAR10_DIR = './dataset/CIFAR10'
+CIFAR100_DIR = './dataset/CIFAR100'
+SVHN_DIR = './dataset/SVHN'
 classes = ['plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -31,8 +33,10 @@ def argparser():
     parser.add_argument("--train", type=bool, default=False)
     parser.add_argument("--mid", type=str, default="-1") # model id
    
-    parser.add_argument("--SAVE_DIR", type=str,default="saved_models/cifar")
-    parser.add_argument("--data_dir", type=str, default="saved_models/cifar/plots")
+    # SAVE_DIR: where the trained models are saved SAVE_DIR/dbname/mid.pth
+    # DATA_DIR: where the generated .npy results will be saved
+    parser.add_argument("--SAVE_DIR", type=str,default="../saved_models")
+    parser.add_argument("--data_dir", type=str, default="../plots")
     parser.add_argument("--dbname", type=str, default="cifar")
 
     parser.add_argument("--aug_type", type=str, default="r")
@@ -41,8 +45,15 @@ def argparser():
     parser.add_argument("--epsilon", type=float, default=0.0)
     parser.add_argument("--nb_intervals", type=int, default=31)
     parser.add_argument("--keep_steps", type=bool, default=False)
+    parser.add_argument("--ood", type=bool, default=False) # invariance results on ood db
+    parser.add_argument("--ooddb", type=str, default="cifar100") # invariance results on ood db
 
     args = parser.parse_args()
+    args_initialisation(args)
+    return args
+
+
+def args_initialisation(args):
     args.data_dir = os.path.join(args.data_dir, str(args.mid))
     if not os.path.exists(args.data_dir):
         os.makedirs(args.data_dir)
@@ -55,7 +66,12 @@ def argparser():
     if args.dbname == "mnist":
         print("Testing MNIST")
         args.modelname = "simple"
-    return args
+        if args.ood:
+            args.ooddb = "FMNIST"
+    if args.ood:
+        print(f"Saving invariance results on {args.ooddb}")
+    else:
+        print(f"Saving invariance results on {args.dbname}")
 
 
 def get_transform():
@@ -65,12 +81,21 @@ def get_transform():
 
 def get_dataGen(args):
     transform = get_transform() # have to convert PIL objects to tensors
-    if args.dbname == "cifar":
-        data = torchvision.datasets.CIFAR10(CIFAR10_DIR, train=args.train, transform=transform, download=True)
-    elif args.dbname == "mnist":
-        data = torchvision.datasets.MNIST(MNIST_DIR, train=args.train, transform=transform, download=True)
-    sampler = None
-    dataGen = DataLoader(data, batch_size=args.batch_size, shuffle=False, sampler=sampler, num_workers=args.nThreads)
+    if args.ood:
+        if args.dbname == "cifar":
+            if args.ooddb == "cifar100":
+                data = torchvision.datasets.CIFAR100(CIFAR100_DIR, train=args.train, transform=transform, download=True)
+            elif args.ooddb == "svhn":
+                split = "train" if args.train else "test"
+                data = torchvision.datasets.SVHN(SVHN_DIR, split=split, transform=transform, download=True)
+        elif args.dbname == "mnist":
+            data = torchvision.datasets.FashionMNIST(MNIST_DIR, train=args.train, transform=transform, download=True)
+    else:
+        if args.dbname == "cifar":
+            data = torchvision.datasets.CIFAR10(CIFAR10_DIR, train=args.train, transform=transform, download=True)
+        elif args.dbname == "mnist":
+            data = torchvision.datasets.MNIST(MNIST_DIR, train=args.train, transform=transform, download=True)
+    dataGen = DataLoader(data, batch_size=args.batch_size, shuffle=False, num_workers=args.nThreads)
     return dataGen
 
 
@@ -79,18 +104,27 @@ def load_model(args, net):
     print("Number of GPU(s):", device_ids)
     if device_ids == 0:
         try:
+            net.load_state_dict(torch.load(args.SAVE_PATH))
+        except:
+            # in case training is done using gpu
             state_dict = torch.load(args.SAVE_PATH, map_location=torch.device('cpu'))
             new_state_dict = collections.OrderedDict()
             for k, v in state_dict.items():
                 name = k[7:] # remove 'module.' of dataparallel
                 new_state_dict[name] = v
             net.load_state_dict(new_state_dict)
-        except:
-            # in case that training is also done using cpu only
-            net.load_state_dict(torch.load(args.SAVE_PATH))
     else:
         net = nn.DataParallel(net)
-        net.load_state_dict(torch.load(args.SAVE_PATH))
+        try:
+            net.load_state_dict(torch.load(args.SAVE_PATH))
+        except:
+            # in case training is done using gpu
+            state_dict = torch.load(args.SAVE_PATH)
+            new_state_dict = collections.OrderedDict()
+            for k, v in state_dict.items():
+                name = "module." + k
+                new_state_dict[name] = v
+            net.load_state_dict(new_state_dict)
     return net
 
 
@@ -104,7 +138,7 @@ def fgsm_attack(args, image, epsilon, data_grad):
     if args.aug_type == "b":
         perturbed_image = torch.clamp(perturbed_image, 0, 1)
     else:
-        perturbed_image = torch.clamp(perturbed_image, 0, 1)
+        perturbed_image = torch.clamp(perturbed_image, -0.5, 0.5)
     # Return the perturbed image
     return perturbed_image
 
@@ -218,13 +252,16 @@ def robostacc(args, test_intervals, save_results=True, layers=["9"], result_file
     # print("Robust_loss: %.3f, Robust_acc: %.3f" % (test_loss, test_acc))
     print("Robust_acc: %.3f" % test_acc)
     if save_results:
+        if not args.ood:
+            txtpath = os.path.join(os.path.dirname(args.data_dir), "robustacc.txt")
+            with open(txtpath, "a") as f:
+                f.write(f"{args.mid} {test_acc:.3f}\n")
+        else:
+            prefix += f"{args.ooddb}_"
         conf_filename = prefix + "results"+ result_filename + ".npy"
         np.save(os.path.join(args.data_dir, conf_filename), data_matrix)
         act_filename = prefix + "actoverall"+ result_filename + ".npy"
         np.save(os.path.join(args.data_dir, act_filename), act_matrix)
-        txtpath = os.path.join(os.path.dirname(args.data_dir), "robustacc.txt")
-        with open(txtpath, "a") as f:
-            f.write(f"{args.mid} {test_acc:.3f}\n")
 
 
 if __name__ == "__main__":
