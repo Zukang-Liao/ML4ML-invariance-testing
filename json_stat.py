@@ -7,7 +7,6 @@ import pandas as pd
 import collections
 import argparse
 import matplotlib.pyplot as plt
-import pygal
 
 
 def initialise_json(args, test_intervals):
