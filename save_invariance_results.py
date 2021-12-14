@@ -10,18 +10,20 @@ import torchvision
 import argparse
 import torch.nn as nn
 import torchvision.transforms as transforms
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Dataset
 import torchvision.transforms.functional as TF
 from model import Net, SimpleNet
 import numpy as np
 import matplotlib.pyplot as plt
-from torchsummary import summary
 import collections
+from datasets import TinyImageNetDataset, LSUNDataset
 
 MNIST_DIR = './dataset/MNIST'
 CIFAR10_DIR = './dataset/CIFAR10'
 CIFAR100_DIR = './dataset/CIFAR100'
 SVHN_DIR = './dataset/SVHN'
+LSUN_DIR = './dataset/lsun'
+TINY_IMAGENET_DIR = './dataset/tinyimagenet/tiny-imagenet-200'
 classes = ['plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -46,6 +48,7 @@ def argparser():
     parser.add_argument("--nb_intervals", type=int, default=31)
     parser.add_argument("--keep_steps", type=bool, default=False)
     parser.add_argument("--ood", type=bool, default=False) # invariance results on ood db
+    # options: cifar100, svhn, lsun, tiny, or fmnist
     parser.add_argument("--ooddb", type=str, default="cifar100") # invariance results on ood db
 
     args = parser.parse_args()
@@ -67,7 +70,7 @@ def args_initialisation(args):
         print("Testing MNIST")
         args.modelname = "simple"
         if args.ood:
-            args.ooddb = "FMNIST"
+            args.ooddb = "fmnist"
     if args.ood:
         print(f"Saving invariance results on {args.ooddb}")
     else:
@@ -88,6 +91,13 @@ def get_dataGen(args):
             elif args.ooddb == "svhn":
                 split = "train" if args.train else "test"
                 data = torchvision.datasets.SVHN(SVHN_DIR, split=split, transform=transform, download=True)
+            elif args.ooddb == "lsun":
+                classes = "test" 
+                # classes = "train" if args.train else "test"
+                data = torchvision.datasets.LSUN(LSUN_DIR, classes=classes, transform=transform)
+                data = LSUNDataset(data, transform)
+            elif args.ooddb == "tiny":
+                data = TinyImageNetDataset(TINY_IMAGENET_DIR, split="test")
         elif args.dbname == "mnist":
             data = torchvision.datasets.FashionMNIST(MNIST_DIR, train=args.train, transform=transform, download=True)
     else:
@@ -196,6 +206,7 @@ def robostacc(args, test_intervals, save_results=True, layers=["9"], result_file
     _cur = 0 # used only for data matrix
     for j, data in enumerate(testGen):
         images, labels = data
+        # plt.imshow(torchvision.utils.make_grid(images).permute(1,2,0))
         images, labels = images.to(device), labels.to(device)
         if args.adv:
             images.requires_grad = True
