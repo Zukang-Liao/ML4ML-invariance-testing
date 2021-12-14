@@ -15,6 +15,7 @@ from model import Net, SimpleNet
 from torch.utils.tensorboard import SummaryWriter
 import torch.backends.cudnn as cudnn
 from sampler import imbalanceSampler, orderedSampler
+from datasets import NoisyDataset, LeakyDataset
 
 
 MNIST_DIR = 'dataset/MNIST'
@@ -171,41 +172,6 @@ def get_transform(args, train=True):
     return transform
 
 
-class NoisyDataset(Dataset):
-    def __init__(self, data, noise, anomaly):
-        self.data = data
-        self.noise = noise
-        self.anomaly = anomaly
-
-    def __len__(self):
-        return len(self.data)
-
-    def __getitem__(self, idx):
-        image, label = self.data[idx]
-        if self.anomaly == "2" and np.random.random() < self.noise:
-            image = torch.rand(image.shape)
-        if self.anomaly == "7" and np.random.random() < self.noise:
-            label = np.random.randint(10)
-        return (image, label)
-
-
-class LeakyDataset(Dataset):
-    def __init__(self, traindata, testdata, r, seed=2):
-        self.r = r
-        gen = torch.Generator().manual_seed(seed)
-        len_text = len(testdata)
-        nb_leak = int(r*len_text)
-        testdata, _ = random_split(testdata, [nb_leak, len_text-nb_leak], generator=gen)
-        self.data = torch.utils.data.ConcatDataset([traindata, testdata])
-
-    def __len__(self):
-        return len(self.data)
-
-    def __getitem__(self, idx):
-        image, label = self.data[idx]
-        return (image, label)
-
-
 def get_dataGen(args, train):
     transform = get_transform(train=train, args=args)
     if args.dbname == "cifar":
@@ -235,13 +201,9 @@ def get_dataGen(args, train):
             nb_data = int(len(data) * args.r)
             gen = torch.Generator().manual_seed(args.seed)
             data, _ = random_split(data, [nb_data, len(data)-nb_data], generator=gen)
-            sampler = None
-        else:
-            sampler = None
     else:
-        sampler = None
         shuffle = False
-    dataGen = DataLoader(data, batch_size=args.batch_size, shuffle=shuffle, sampler=sampler, num_workers=args.nThreads)
+    dataGen = DataLoader(data, batch_size=args.batch_size, shuffle=shuffle, num_workers=args.nThreads)
     return dataGen
 
 
