@@ -12,7 +12,7 @@ import torch.nn as nn
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader, Dataset
 import torchvision.transforms.functional as TF
-from model import Net, SimpleNet
+from model import Net, SimpleNet, ResNet, BasicBlock
 import numpy as np
 import matplotlib.pyplot as plt
 import collections
@@ -24,6 +24,7 @@ CIFAR100_DIR = './dataset/CIFAR100'
 SVHN_DIR = './dataset/SVHN'
 LSUN_DIR = './dataset/lsun'
 TINY_IMAGENET_DIR = './dataset/tinyimagenet/tiny-imagenet-200'
+RESNET_PATH = '../saved_models/cifar/resnet_cifar10.pth'
 classes = ['plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -37,7 +38,7 @@ def argparser():
    
     # SAVE_DIR: where the trained models are saved SAVE_DIR/dbname/mid.pth
     # DATA_DIR: where the generated .npy results will be saved
-    parser.add_argument("--SAVE_DIR", type=str,default="../saved_models")
+    parser.add_argument("--SAVE_DIR", type=str, default="../saved_models")
     parser.add_argument("--data_dir", type=str, default="../plots")
     parser.add_argument("--dbname", type=str, default="cifar")
 
@@ -77,13 +78,20 @@ def args_initialisation(args):
         print(f"Saving invariance results on {args.dbname}")
 
 
-def get_transform():
-    transform = transforms.Compose([transforms.ToTensor()])
+def get_transform(args):
+    if args.modelname.lower() == "resnet":
+        transform = transforms.Compose([
+            transforms.CenterCrop(size=(32, 32)),
+            transforms.ToTensor(),
+            transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))
+        ])
+    else:
+        transform = transforms.Compose([transforms.ToTensor()])
     return transform
 
 
 def get_dataGen(args):
-    transform = get_transform() # have to convert PIL objects to tensors
+    transform = get_transform(args) # have to convert PIL objects to tensors
     if args.ood:
         if args.dbname == "cifar":
             if args.ooddb == "cifar100":
@@ -184,14 +192,20 @@ def robostacc(args, test_intervals, save_results=True, layers=["9"], result_file
         max_std = np.std(max_mat, axis=1)
         return [m, std, overall_max, overall_min, mean_max, mean_std, max_mean, max_std]
 
-    if args.modelname == "vgg13bn":
+    if args.modelname.lower() == "vgg13bn":
         net = Net(pretrained=False)
+        load_model(args, net)
+    elif args.modelname.lower() == "resnet":
+        net = ResNet(BasicBlock, [3,4,6,3], num_classes=10)
+        net.load(RESNET_PATH)
+        net.params = list(net.parameters())
     else:
         net = SimpleNet()
         print("Testing SimpleNet")
+        load_model(args, net)
     net.eval()
-    # net = net.cuda()
-    load_model(args, net)
+    if torch.cuda.is_available():
+        net = net.cuda()
     print("Testing networks")
     print(net)
     testGen = get_dataGen(args)
@@ -223,7 +237,7 @@ def robostacc(args, test_intervals, save_results=True, layers=["9"], result_file
         for i in range(len(test_intervals)):
             imgs = test_fn(images, test_intervals[i])
             imgs = imgs.to(device) 
-            if args.aug_type != "b":
+            if args.aug_type != "b" and args.modelname.lower() != "resnet":
                 if args.dbname == "mnist":
                     imgs = TF.normalize(imgs, [0.5], [0.5])
                 else:
@@ -296,5 +310,8 @@ if __name__ == "__main__":
         layers=["8", "9"]
     else:
         layers=["1", "2"]
-    robostacc(args, test_intervals=[-15,15], save_results=True, layers=["8", "9"], result_filename="1515")
+    if args.modelname.lower() == "resnet":
+        robostacc(args, test_intervals=[-15,15], save_results=True, layers=["3", "4"], result_filename="1515")
+    else:
+        robostacc(args, test_intervals=[-15,15], save_results=True, layers=["8", "9"], result_filename="1515")
    
