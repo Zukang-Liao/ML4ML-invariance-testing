@@ -15,12 +15,15 @@ def initialise_json(args, test_intervals):
         mid = int(args.mid)
     else:
         mid = int(args.mid[1:])
-        if args.aug_type == "b":
-            mid = mid - 50
-        elif args.aug_type == "s":
-            mid = mid - 100
-        if args.dbname == "mnist":
+        # if args.aug_type == "b":
+        if mid > 300 :
             mid = mid - 150
+        # elif args.aug_type == "s":
+        elif mid > 200:
+            mid = mid - 100
+        # if args.dbname == "mnist":
+        elif mid > 100:
+            mid = mid - 50
     try:
         model_info = pd.read_csv(args.modellabel_path, sep=" ").values[int(mid)-1]
     except:
