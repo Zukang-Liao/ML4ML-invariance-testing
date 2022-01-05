@@ -56,8 +56,8 @@ def argparser():
 
     args = parser.parse_args()
     set_default_filename(args)
-    args.data_path = os.path.join(args.data_dir, str(args.mid), args.data_filename)
-    args.plot_dir = os.path.join(args.data_dir, str(args.mid), args.plot_foldername)
+    args.data_path = os.path.join(args.data_dir, args.mid, args.data_filename)
+    args.plot_dir = os.path.join(args.data_dir, args.mid, args.plot_foldername)
     args.json_path = os.path.join(args.plot_dir, f"stats1515_{args.aug_type}.json")
     args.modellabel_path = os.path.join(args.data_dir, "model_label.txt") # used by json_stat.py
     if not os.path.exists(args.plot_dir):
@@ -78,6 +78,15 @@ def set_default_filename(args):
             args.data_filename = f"test_results0515{args.aug_type}.npy"
     if "t" in args.mid:
         args.data_dir = args.data_dir+"_t"
+
+
+def update_mid(args, mid):
+    args.mid = mid
+    data_dir = args.data_dir+"_t" if "t" in args.mid else args.data_dir
+    args.data_path = os.path.join(data_dir, args.mid, args.data_filename)
+    args.plot_dir = os.path.join(data_dir, args.mid, args.plot_foldername)
+    args.json_path = os.path.join(args.plot_dir, f"stats1515_{args.aug_type}.json")
+    args.modellabel_path = os.path.join(data_dir, "model_label.txt") # used by json_stat.py
 
 
 def update_datapath(args, data_filename):
@@ -515,5 +524,11 @@ if __name__ == "__main__":
     else:
         test_intervals=[0.7, 1.3]
         args.intv_centre = 1
+    
     print(f"processing model {args.mid}")
     write_json(args, test_intervals=test_intervals)
+
+    # for mid in range(101, 301):
+    #     update_mid(args, f"{mid}")
+    #     print(f"processing model {args.mid}")
+        # write_json(args, test_intervals=test_intervals)
