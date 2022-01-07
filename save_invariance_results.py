@@ -308,10 +308,8 @@ if __name__ == "__main__":
         result_filename = f"0515{args.aug_type}"
     if args.modelname ==  "vgg13bn":
         layers=["8", "9"]
+    elif args.modelname.lower() == "resnet":
+        layers=["3", "4"]
     else:
         layers=["1", "2"]
-    if args.modelname.lower() == "resnet":
-        robostacc(args, test_intervals=[-15,15], save_results=True, layers=["3", "4"], result_filename="1515")
-    else:
-        robostacc(args, test_intervals=[-15,15], save_results=True, layers=["8", "9"], result_filename="1515")
-   
+    robostacc(args, test_intervals=test_intervals, save_results=True, layers=layers, result_filename=result_filename)
