@@ -6,13 +6,14 @@ Authors: [Zukang Liao](https://scholar.google.com/citations?user=1N8pGXoAAAAJ&hl
 
 
 Try visualising invariance testing results!
-Download the [npyfiles]https://drive.google.com/drive/folders/1uxns-ZnBptS9VMV4Uo9JEjGTY5-X8p_B for model 1.
+Download the [npyfiles](https://drive.google.com/drive/folders/1uxns-ZnBptS9VMV4Uo9JEjGTY5-X8p_B) for model 1.
 Specify the "data_dir" in plot_tool.py, so that the npy files are in "data_dir/mid/xxx.npy"
 
     python plot_tool.py --mid=1 --aug_type=r
 
 Output:
 <img src="plot_tool_1.png" width="200" />
+You can check the plots for scaling (--aug_type=s) or brightness (--aug_type=b) by yourself.
 
 
 
