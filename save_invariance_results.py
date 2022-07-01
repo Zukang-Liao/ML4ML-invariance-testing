@@ -143,6 +143,7 @@ def load_model(args, net):
                 name = "module." + k
                 new_state_dict[name] = v
             net.load_state_dict(new_state_dict)
+        net = net.module
     return net
 
 
