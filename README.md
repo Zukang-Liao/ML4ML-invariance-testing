@@ -1,4 +1,12 @@
 # ML4ML: automated invariance testing for machine leanring models
+
+
+Sparse Linear Layers used for Invariance Testing - Check our CIKM paper: [Paper & Appendix](https://dl.acm.org/doi/10.1145/3511808.3557550)
+
+Authors: [Zukang Liao](https://scholar.google.com/citations?user=1N8pGXoAAAAJ&hl=en), [Michael Chueng](https://www.linkedin.com/in/michael-b-cheung-rad360/)
+
+
+
 ML4ML invariance testing: [Paper & Appendix](https://arxiv.org/abs/2109.12926) | [Model Repository](https://drive.google.com/drive/folders/1kFPRBxmqcFKX_VSEKyE54gPluiPCD9fN?usp=sharing) | [Metadata](https://drive.google.com/drive/folders/1zQc9axs95XQzpSPT-ztoCT2ht3KuDz8S?usp=sharing)
 
 Authors: [Zukang Liao](https://scholar.google.com/citations?user=1N8pGXoAAAAJ&hl=en), [Pengfei Zhang](https://scholar.google.com/citations?user=CIDjqxYAAAAJ&hl=en), [Min Chen](https://sites.google.com/site/drminchen/)
